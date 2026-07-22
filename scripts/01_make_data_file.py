@@ -11,7 +11,8 @@ load_dotenv(find_dotenv())
 
 ROOT_PATH = os.getenv("ROOT_PATH")
 MY_DATA_PATH = os.getenv("MY_DATA_PATH")
-DEWEY_PATH = os.getenv("DEWEY_PATH")
+RAW_DATA_PATH = os.getenv("RAW_DATA_PATH")
+DEWEY_PATH = os.path.join(RAW_DATA_PATH, "dewey-downloads")
 
 SUMMARY_FILEPATH = os.path.join(MY_DATA_PATH, "dewey_summary.parquet")
 JURISDICTIONS_FILEPATH = os.path.join(MY_DATA_PATH, "raw_data", "dewey_la_county_jurisdictions.csv")

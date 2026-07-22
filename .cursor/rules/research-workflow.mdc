@@ -20,9 +20,3 @@ alwaysApply: true
 - If any artifacts were generated, list their file locations 
 - Keep entries concise and factual
 
-## Update AGENTS.md
-
-When something significant is learned (data structure, key finding, scope change), update root `AGENTS.md`:
-
-- Prefer appending or refining short bullets over rewriting the whole file
-- `AGENTS.md` is a high level summary of pertinent information to help you understand the project quickly

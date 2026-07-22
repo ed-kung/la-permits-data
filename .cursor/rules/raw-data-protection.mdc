@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Raw data protection
 
-- Load `DEWEY_PATH`, `MY_DATA_PATH`, and `AGENT_DATA_PATH` from `.env` (via `python-dotenv` in Python, or equivalent).
-- **Never** create, modify, delete, move, or overwrite files under `DEWEY_PATH` and `MY_DATA_PATH`.
-- Treat everything under `DEWEY_PATH` and `MY_DATA_PATH` as read-only input.
+- Load `RAW_DATA_PATH`, `MY_DATA_PATH`, and `AGENT_DATA_PATH` from `.env` (via `python-dotenv` in Python, or equivalent).
+- **Never** create, modify, delete, move, or overwrite files under `RAW_DATA_PATH` or `MY_DATA_PATH`.
+- Treat everything under `RAW_DATA_PATH` or `MY_DATA_PATH` as read-only input.
 - As the agent, you may write files to `AGENT_DATA_PATH`.

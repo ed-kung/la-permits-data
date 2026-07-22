@@ -1,10 +1,10 @@
-# LA Permits Research Agent
+# Permits Data Research Agent
 
 You are a research assistant helping out with data preparation and analysis for the economics research project contained in this repo. This file is a living document to help you get up to speed on the current state of the project.
 
 ## Project 
 
-Exploratory analysis of a Los Angeles County building permits dataset. The research focus may narrow over time.
+Exploratory analysis of a dataset containing building permits from various jurisdictions across the U.S.  The scope of the project may change over time.
 
 ## Stack
 
@@ -18,40 +18,11 @@ Paths are set in `.env` (see `.env.example`):
 
 | Variable | Role |
 | --- | --- |
-| `DEWEY_PATH` | Local directory with the original raw permits data from Dewey (**read-only**) |
+| `RAW_DATA_PATH` | Local directory with raw data (**read-only**) |
 | `MY_DATA_PATH` | Local directory for additional datasets processed by the human user (**read-only**) |
 | `AGENT_DATA_PATH` | Local directory for files and artifacts stored by the agent |
 
-Never overwrite, modify, or delete anything under `DEWEY_PATH` or `MY_DATA_PATH`. Write all derived artifacts to `AGENT_DATA_PATH`.
-
-## Main data file(s)
-
-The main data file that we are currently working with is `MY_DATA_PATH/processed_data/dewey_ca_la_county_permits.parquet`.
-
-The data contains permits from jurisdictions in Los Angeles County.
-
-- Shape (verified 2026-07-21): **7,593,533 rows × 117 columns** (~4.7 GB parquet)
-- Jurisdiction field: `JURISDICTION` (also has `CITY`, `COUNTY`, date fields, `JOB_VALUE`, status, description, and many typed permit flags)
-
-A current summary of the usability of the data for each jurisdiction is contained in `ROOT_PATH/reports/2026-07-21-data-usability-report.md`.
-
-### FILE_DATE vs PERMIT_DATE (2026-07-21)
-
-- Where both exist (~2.84M rows): median `PERMIT − FILE` = **3 days**; only ~1% have permit before file (supports application→approval reading).
-- **Not fully interchangeable for monthly aggregates**: 61% same calendar month / 87% same year on dual-dated rows; monthly series still correlate ~0.996 when both dates present.
-- Coverage is jurisdiction-specific: City of LA mostly `PERMIT_DATE`; Compton PERMIT-only; Lomita FILE-only; Long Beach uses `FINAL_DATE`. Prefer coalesce (`FILE_OR_PERMIT`) for coverage; document dating convention for time-series work.
-- Details: `agent/reports/2026-07-21-file-vs-permit-date.md`
-
-### `DATA` JSON field (2026-07-21)
-
-- `DATA` is a large JSON string: jurisdiction-native raw payload (always populated; ~11 schema families — Accela-like `entity/details`, Citizen Access `tasks/search_data`, LADBS history arrays, etc.).
-- Top-level `FILE_DATE` / `PERMIT_DATE` / `FINAL_DATE` / `STATUS_ORIGINAL` are extracted from it; `STATUS_NORMALIZED` is a Dewey crosswalk of the original status (Final / Active / Inactive / In Review), not a verbatim DATA string.
-- Pitfalls: Claremont/Azusa (and often Beverly Hills) map `FINAL_DATE` from **expiration** fields; Long Beach JSON key `Final Date` is a status label, column comes from `Status Date`.
-- Details: `agent/reports/2026-07-21-data-json-field.md`; artifacts in `AGENT_DATA_PATH/data_json_explore/`
-
-## Environment notes
-
-- `.venv` is set up; core packages present except `scikit-learn` (not installed yet). No `requirements.txt` in repo currently.
+Never overwrite, modify, or delete anything under `RAW_DATA_PATH` or `MY_DATA_PATH`. Write all derived artifacts to `AGENT_DATA_PATH`.
 
 ## Repo layout
 
@@ -61,6 +32,10 @@ A current summary of the usability of the data for each jurisdiction is containe
 - `agent/scripts/` - reproducible analysis scripts created by agent
 - `agent/reports/` - post-task summaries of work and findings by agent
 - `.cursor/rules/` — agent rules (data protection, workflow, stack)
+
+## Environment notes
+
+- `.venv` is set up; core packages present except `scikit-learn` (not installed yet). No `requirements.txt` in repo currently.
 
 ## Agent conventions
 
