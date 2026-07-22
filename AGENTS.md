@@ -42,6 +42,13 @@ A current summary of the usability of the data for each jurisdiction is containe
 - Coverage is jurisdiction-specific: City of LA mostly `PERMIT_DATE`; Compton PERMIT-only; Lomita FILE-only; Long Beach uses `FINAL_DATE`. Prefer coalesce (`FILE_OR_PERMIT`) for coverage; document dating convention for time-series work.
 - Details: `agent/reports/2026-07-21-file-vs-permit-date.md`
 
+### `DATA` JSON field (2026-07-21)
+
+- `DATA` is a large JSON string: jurisdiction-native raw payload (always populated; ~11 schema families — Accela-like `entity/details`, Citizen Access `tasks/search_data`, LADBS history arrays, etc.).
+- Top-level `FILE_DATE` / `PERMIT_DATE` / `FINAL_DATE` / `STATUS_ORIGINAL` are extracted from it; `STATUS_NORMALIZED` is a Dewey crosswalk of the original status (Final / Active / Inactive / In Review), not a verbatim DATA string.
+- Pitfalls: Claremont/Azusa (and often Beverly Hills) map `FINAL_DATE` from **expiration** fields; Long Beach JSON key `Final Date` is a status label, column comes from `Status Date`.
+- Details: `agent/reports/2026-07-21-data-json-field.md`; artifacts in `AGENT_DATA_PATH/data_json_explore/`
+
 ## Environment notes
 
 - `.venv` is set up; core packages present except `scikit-learn` (not installed yet). No `requirements.txt` in repo currently.
