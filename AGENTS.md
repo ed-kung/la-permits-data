@@ -35,6 +35,13 @@ The data contains permits from jurisdictions in Los Angeles County.
 
 A current summary of the usability of the data for each jurisdiction is contained in `ROOT_PATH/reports/2026-07-21-data-usability-report.md`.
 
+### FILE_DATE vs PERMIT_DATE (2026-07-21)
+
+- Where both exist (~2.84M rows): median `PERMIT − FILE` = **3 days**; only ~1% have permit before file (supports application→approval reading).
+- **Not fully interchangeable for monthly aggregates**: 61% same calendar month / 87% same year on dual-dated rows; monthly series still correlate ~0.996 when both dates present.
+- Coverage is jurisdiction-specific: City of LA mostly `PERMIT_DATE`; Compton PERMIT-only; Lomita FILE-only; Long Beach uses `FINAL_DATE`. Prefer coalesce (`FILE_OR_PERMIT`) for coverage; document dating convention for time-series work.
+- Details: `agent/reports/2026-07-21-file-vs-permit-date.md`
+
 ## Environment notes
 
 - `.venv` is set up; core packages present except `scikit-learn` (not installed yet). No `requirements.txt` in repo currently.
