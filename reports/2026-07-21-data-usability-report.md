@@ -1,0 +1,834 @@
+
+# Data Usability Report 
+
+For Dewey permits data, jurisdictions in Los Angeles County. No data cleaning was done for any of the variables.
+
+## Alhambra 
+  - STATUS_NORMALIZED: 15,420/16,110 (95.7%) populated *OK*
+    - Active: 16,110 (24.9%)
+      - FILE_DATE: 3,838 / 3,838 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,795 / 3,838 (98.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 3,838 / 3,838 (100.0%) populated *OK*
+      - FINAL_DATE: 60 / 3,838 (1.6%) populated **FAIL**
+    - Final: 16,110 (24.9%)
+      - FILE_DATE: 3,832 / 3,832 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,734 / 3,832 (97.4%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 3,832 / 3,832 (100.0%) populated *OK*
+      - FINAL_DATE: 3,832 / 3,832 (100.0%) populated *OK*
+    - In Review: 16,110 (24.1%)
+      - FILE_DATE: 3,709 / 3,709 (100.0%) populated *OK*
+      - PERMIT_DATE: 202 / 3,709 (5.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,709 / 3,709 (100.0%) populated *OK*
+      - FINAL_DATE: 29 / 3,709 (0.8%) populated **FAIL**
+    - Inactive: 16,110 (26.2%)
+      - FILE_DATE: 4,041 / 4,041 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,213 / 4,041 (79.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,041 / 4,041 (100.0%) populated *OK*
+      - FINAL_DATE: 672 / 4,041 (16.6%) populated **FAIL**
+
+## Arcadia 
+  - STATUS_NORMALIZED: 46,954/46,954 (100.0%) populated *OK*
+    - Active: 46,954 (6.9%)
+      - FILE_DATE: 3,242 / 3,242 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,067 / 3,242 (94.6%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 3,242 / 3,242 (100.0%) populated *OK*
+      - FINAL_DATE: 1,141 / 3,242 (35.2%) populated **FAIL**
+    - Final: 46,954 (83.3%)
+      - FILE_DATE: 39,096 / 39,096 (100.0%) populated *OK*
+      - PERMIT_DATE: 38,137 / 39,096 (97.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 39,096 / 39,096 (100.0%) populated *OK*
+      - FINAL_DATE: 38,319 / 39,096 (98.0%) populated *OK*
+    - In Review: 46,954 (0.2%)
+      - FILE_DATE: 75 / 75 (100.0%) populated *OK*
+      - PERMIT_DATE: 2 / 75 (2.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 75 / 75 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 75 (2.7%) populated **FAIL**
+    - Inactive: 46,954 (9.7%)
+      - FILE_DATE: 4,541 / 4,541 (100.0%) populated *OK*
+      - PERMIT_DATE: 4,057 / 4,541 (89.3%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 4,541 / 4,541 (100.0%) populated *OK*
+      - FINAL_DATE: 567 / 4,541 (12.5%) populated **FAIL**
+
+## Azusa 
+  - STATUS_NORMALIZED: 34,629/34,632 (100.0%) populated *OK*
+    - Active: 34,632 (16.4%)
+      - FILE_DATE: 5,683 / 5,683 (100.0%) populated *OK*
+      - PERMIT_DATE: 5,669 / 5,683 (99.8%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 5,683 / 5,683 (100.0%) populated *OK*
+      - FINAL_DATE: 4,288 / 5,683 (75.5%) populated **FAIL**
+    - Final: 34,632 (66.6%)
+      - FILE_DATE: 23,046 / 23,046 (100.0%) populated *OK*
+      - PERMIT_DATE: 22,880 / 23,046 (99.3%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 23,046 / 23,046 (100.0%) populated *OK*
+      - FINAL_DATE: 20,575 / 23,046 (89.3%) populated *OK*
+    - In Review: 34,632 (4.6%)
+      - FILE_DATE: 1,597 / 1,597 (100.0%) populated *OK*
+      - PERMIT_DATE: 479 / 1,597 (30.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,597 / 1,597 (100.0%) populated *OK*
+      - FINAL_DATE: 1,029 / 1,597 (64.4%) populated **FAIL**
+    - Inactive: 34,632 (12.4%)
+      - FILE_DATE: 4,303 / 4,303 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,626 / 4,303 (84.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,303 / 4,303 (100.0%) populated *OK*
+      - FINAL_DATE: 3,982 / 4,303 (92.5%) populated *OK*
+
+## Beverly Hills 
+  - STATUS_NORMALIZED: 160,065/162,023 (98.8%) populated *OK*
+    - Active: 162,023 (42.4%)
+      - FILE_DATE: 67,430 / 67,840 (99.4%) populated *OK*
+      - PERMIT_DATE: 61,256 / 67,840 (90.3%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 67,747 / 67,840 (99.9%) populated *OK*
+      - FINAL_DATE: 53,172 / 67,840 (78.4%) populated **FAIL**
+    - Final: 162,023 (56.6%)
+      - FILE_DATE: 90,255 / 90,520 (99.7%) populated *OK*
+      - PERMIT_DATE: 87,587 / 90,520 (96.8%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 90,458 / 90,520 (99.9%) populated *OK*
+      - FINAL_DATE: 87,168 / 90,520 (96.3%) populated *OK*
+    - In Review: 162,023 (0.0%)
+      - FILE_DATE: 6 / 6 (100.0%) populated *OK*
+      - PERMIT_DATE: 0 / 6 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 6 / 6 (100.0%) populated *OK*
+      - FINAL_DATE: 3 / 6 (50.0%) populated **FAIL**
+    - Inactive: 162,023 (1.1%)
+      - FILE_DATE: 1,664 / 1,699 (97.9%) populated *OK*
+      - PERMIT_DATE: 531 / 1,699 (31.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,666 / 1,699 (98.1%) populated *OK*
+      - FINAL_DATE: 1,322 / 1,699 (77.8%) populated **FAIL**
+
+## Burbank 
+  - STATUS_NORMALIZED: 473,683/474,299 (99.9%) populated *OK*
+    - Active: 474,299 (11.4%)
+      - FILE_DATE: 53,770 / 54,000 (99.6%) populated *OK*
+      - PERMIT_DATE: 39,853 / 54,000 (73.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 53,932 / 54,000 (99.9%) populated *OK*
+      - FINAL_DATE: 6,845 / 54,000 (12.7%) populated **FAIL**
+    - Final: 474,299 (18.5%)
+      - FILE_DATE: 87,696 / 87,696 (100.0%) populated *OK*
+      - PERMIT_DATE: 87,409 / 87,696 (99.7%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 87,696 / 87,696 (100.0%) populated *OK*
+      - FINAL_DATE: 87,312 / 87,696 (99.6%) populated *OK*
+    - In Review: 474,299 (14.1%)
+      - FILE_DATE: 66,447 / 66,862 (99.4%) populated *OK*
+      - PERMIT_DATE: 15,509 / 66,862 (23.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 66,558 / 66,862 (99.5%) populated *OK*
+      - FINAL_DATE: 32,319 / 66,862 (48.3%) populated **FAIL**
+    - Inactive: 474,299 (56.0%)
+      - FILE_DATE: 263,420 / 265,125 (99.4%) populated *OK*
+      - PERMIT_DATE: 122,304 / 265,125 (46.1%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 264,515 / 265,125 (99.8%) populated *OK*
+      - FINAL_DATE: 7,274 / 265,125 (2.7%) populated **FAIL**
+
+## Calabasas 
+  - STATUS_NORMALIZED: 37,804/46,776 (80.8%) populated **FAIL**
+    - Active: 46,776 (2.7%)
+      - FILE_DATE: 1,024 / 1,024 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,024 / 1,024 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 1,024 / 1,024 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 1,024 (0.0%) populated **FAIL**
+    - Final: 46,776 (86.5%)
+      - FILE_DATE: 32,686 / 32,686 (100.0%) populated *OK*
+      - PERMIT_DATE: 30,356 / 32,686 (92.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 32,686 / 32,686 (100.0%) populated *OK*
+      - FINAL_DATE: 28,532 / 32,686 (87.3%) populated *OK*
+    - In Review: 46,776 (3.4%)
+      - FILE_DATE: 1,301 / 1,301 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,100 / 1,301 (84.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,301 / 1,301 (100.0%) populated *OK*
+      - FINAL_DATE: 1 / 1,301 (0.1%) populated **FAIL**
+    - Inactive: 46,776 (7.4%)
+      - FILE_DATE: 2,793 / 2,793 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,339 / 2,793 (83.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,793 / 2,793 (100.0%) populated *OK*
+      - FINAL_DATE: 143 / 2,793 (5.1%) populated **FAIL**
+
+## Carson 
+  - STATUS_NORMALIZED: 5,472/6,448 (84.9%) populated **FAIL**
+    - Active: 6,448 (48.8%)
+      - FILE_DATE: 2,668 / 2,668 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,667 / 2,668 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 2,668 / 2,668 (100.0%) populated *OK*
+      - FINAL_DATE: 9 / 2,668 (0.3%) populated **FAIL**
+    - Final: 6,448 (13.7%)
+      - FILE_DATE: 752 / 752 (100.0%) populated *OK*
+      - PERMIT_DATE: 585 / 752 (77.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 752 / 752 (100.0%) populated *OK*
+      - FINAL_DATE: 752 / 752 (100.0%) populated *OK*
+    - In Review: 6,448 (31.2%)
+      - FILE_DATE: 1,709 / 1,709 (100.0%) populated *OK*
+      - PERMIT_DATE: 20 / 1,709 (1.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,709 / 1,709 (100.0%) populated *OK*
+      - FINAL_DATE: 4 / 1,709 (0.2%) populated **FAIL**
+    - Inactive: 6,448 (6.3%)
+      - FILE_DATE: 343 / 343 (100.0%) populated *OK*
+      - PERMIT_DATE: 16 / 343 (4.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 343 / 343 (100.0%) populated *OK*
+      - FINAL_DATE: 1 / 343 (0.3%) populated **FAIL**
+
+## Claremont 
+  - STATUS_NORMALIZED: 48,392/48,392 (100.0%) populated *OK*
+    - Active: 48,392 (12.9%)
+      - FILE_DATE: 6,261 / 6,261 (100.0%) populated *OK*
+      - PERMIT_DATE: 5,720 / 6,261 (91.4%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 6,261 / 6,261 (100.0%) populated *OK*
+      - FINAL_DATE: 5,182 / 6,261 (82.8%) populated **FAIL**
+    - Final: 48,392 (53.9%)
+      - FILE_DATE: 26,079 / 26,079 (100.0%) populated *OK*
+      - PERMIT_DATE: 25,215 / 26,079 (96.7%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 26,079 / 26,079 (100.0%) populated *OK*
+      - FINAL_DATE: 25,515 / 26,079 (97.8%) populated *OK*
+    - In Review: 48,392 (17.1%)
+      - FILE_DATE: 8,285 / 8,285 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,944 / 8,285 (47.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 8,285 / 8,285 (100.0%) populated *OK*
+      - FINAL_DATE: 7,461 / 8,285 (90.1%) populated *OK*
+    - Inactive: 48,392 (16.1%)
+      - FILE_DATE: 7,766 / 7,767 (100.0%) populated *OK*
+      - PERMIT_DATE: 7,139 / 7,767 (91.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 7,766 / 7,767 (100.0%) populated *OK*
+      - FINAL_DATE: 7,719 / 7,767 (99.4%) populated *OK*
+
+## Compton 
+  - STATUS_NORMALIZED: 101,413/107,589 (94.3%) populated *OK*
+    - Active: 107,589 (58.8%)
+      - FILE_DATE: 0 / 59,657 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 55,298 / 59,657 (92.7%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 55,298 / 59,657 (92.7%) populated *OK*
+      - FINAL_DATE: 0 / 59,657 (0.0%) populated **FAIL**
+    - Final: 107,589 (21.4%)
+      - FILE_DATE: 0 / 21,680 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 21,108 / 21,680 (97.4%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 21,108 / 21,680 (97.4%) populated *OK*
+      - FINAL_DATE: 0 / 21,680 (0.0%) populated **FAIL**
+    - In Review: 107,589 (15.8%)
+      - FILE_DATE: 0 / 16,030 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 2,744 / 16,030 (17.1%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,744 / 16,030 (17.1%) populated **FAIL**
+      - FINAL_DATE: 0 / 16,030 (0.0%) populated **FAIL**
+    - Inactive: 107,589 (4.0%)
+      - FILE_DATE: 0 / 4,046 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 2,402 / 4,046 (59.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,402 / 4,046 (59.4%) populated **FAIL**
+      - FINAL_DATE: 0 / 4,046 (0.0%) populated **FAIL**
+
+## Culver City 
+  - STATUS_NORMALIZED: 163,626/164,267 (99.6%) populated *OK*
+    - Active: 164,267 (12.3%)
+      - FILE_DATE: 20,190 / 20,190 (100.0%) populated *OK*
+      - PERMIT_DATE: 8,644 / 20,190 (42.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 20,190 / 20,190 (100.0%) populated *OK*
+      - FINAL_DATE: 7 / 20,190 (0.0%) populated **FAIL**
+    - Final: 164,267 (81.2%)
+      - FILE_DATE: 132,811 / 132,811 (100.0%) populated *OK*
+      - PERMIT_DATE: 40,755 / 132,811 (30.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 132,811 / 132,811 (100.0%) populated *OK*
+      - FINAL_DATE: 63,379 / 132,811 (47.7%) populated **FAIL**
+    - In Review: 164,267 (2.8%)
+      - FILE_DATE: 4,596 / 4,596 (100.0%) populated *OK*
+      - PERMIT_DATE: 15 / 4,596 (0.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,596 / 4,596 (100.0%) populated *OK*
+      - FINAL_DATE: 1 / 4,596 (0.0%) populated **FAIL**
+    - Inactive: 164,267 (3.7%)
+      - FILE_DATE: 6,029 / 6,029 (100.0%) populated *OK*
+      - PERMIT_DATE: 896 / 6,029 (14.9%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 6,029 / 6,029 (100.0%) populated *OK*
+      - FINAL_DATE: 12 / 6,029 (0.2%) populated **FAIL**
+
+## Downey 
+  - STATUS_NORMALIZED: 35,607/35,707 (99.7%) populated *OK*
+    - Active: 35,707 (18.2%)
+      - FILE_DATE: 6,481 / 6,481 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,898 / 6,481 (44.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 6,481 / 6,481 (100.0%) populated *OK*
+      - FINAL_DATE: 9 / 6,481 (0.1%) populated **FAIL**
+    - Final: 35,707 (65.7%)
+      - FILE_DATE: 23,382 / 23,382 (100.0%) populated *OK*
+      - PERMIT_DATE: 22,404 / 23,382 (95.8%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 23,382 / 23,382 (100.0%) populated *OK*
+      - FINAL_DATE: 20,217 / 23,382 (86.5%) populated *OK*
+    - In Review: 35,707 (5.9%)
+      - FILE_DATE: 2,110 / 2,110 (100.0%) populated *OK*
+      - PERMIT_DATE: 77 / 2,110 (3.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,110 / 2,110 (100.0%) populated *OK*
+      - FINAL_DATE: 4 / 2,110 (0.2%) populated **FAIL**
+    - Inactive: 35,707 (10.2%)
+      - FILE_DATE: 3,634 / 3,634 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,413 / 3,634 (66.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,634 / 3,634 (100.0%) populated *OK*
+      - FINAL_DATE: 251 / 3,634 (6.9%) populated **FAIL**
+
+## El Segundo 
+  - STATUS_NORMALIZED: 57,011/57,098 (99.8%) populated *OK*
+    - Active: 57,098 (16.9%)
+      - FILE_DATE: 9,616 / 9,622 (99.9%) populated *OK*
+      - PERMIT_DATE: 9,126 / 9,622 (94.8%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 9,621 / 9,622 (100.0%) populated *OK*
+      - FINAL_DATE: 158 / 9,622 (1.6%) populated **FAIL**
+    - Final: 57,098 (57.3%)
+      - FILE_DATE: 32,663 / 32,674 (100.0%) populated *OK*
+      - PERMIT_DATE: 32,115 / 32,674 (98.3%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 32,672 / 32,674 (100.0%) populated *OK*
+      - FINAL_DATE: 32,023 / 32,674 (98.0%) populated *OK*
+    - In Review: 57,098 (3.4%)
+      - FILE_DATE: 1,799 / 1,946 (92.4%) populated *OK*
+      - PERMIT_DATE: 42 / 1,946 (2.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,799 / 1,946 (92.4%) populated *OK*
+      - FINAL_DATE: 6 / 1,946 (0.3%) populated **FAIL**
+    - Inactive: 57,098 (22.4%)
+      - FILE_DATE: 12,685 / 12,769 (99.3%) populated *OK*
+      - PERMIT_DATE: 8,982 / 12,769 (70.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 12,686 / 12,769 (99.3%) populated *OK*
+      - FINAL_DATE: 233 / 12,769 (1.8%) populated **FAIL**
+
+## Gardena 
+  - STATUS_NORMALIZED: 67,489/75,079 (89.9%) populated *OK*
+    - Active: 75,079 (8.2%)
+      - FILE_DATE: 5,537 / 5,561 (99.6%) populated *OK*
+      - PERMIT_DATE: 5,170 / 5,561 (93.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 5,538 / 5,561 (99.6%) populated *OK*
+      - FINAL_DATE: 160 / 5,561 (2.9%) populated **FAIL**
+    - Final: 75,079 (68.2%)
+      - FILE_DATE: 46,029 / 46,031 (100.0%) populated *OK*
+      - PERMIT_DATE: 41,215 / 46,031 (89.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 46,029 / 46,031 (100.0%) populated *OK*
+      - FINAL_DATE: 44,916 / 46,031 (97.6%) populated *OK*
+    - In Review: 75,079 (5.6%)
+      - FILE_DATE: 3,729 / 3,759 (99.2%) populated *OK*
+      - PERMIT_DATE: 241 / 3,759 (6.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,729 / 3,759 (99.2%) populated *OK*
+      - FINAL_DATE: 948 / 3,759 (25.2%) populated **FAIL**
+    - Inactive: 75,079 (18.0%)
+      - FILE_DATE: 12,090 / 12,138 (99.6%) populated *OK*
+      - PERMIT_DATE: 10,115 / 12,138 (83.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 12,091 / 12,138 (99.6%) populated *OK*
+      - FINAL_DATE: 105 / 12,138 (0.9%) populated **FAIL**
+
+## Glendale 
+  - STATUS_NORMALIZED: 129,344/129,346 (100.0%) populated *OK*
+    - Active: 129,346 (15.5%)
+      - FILE_DATE: 20,031 / 20,031 (100.0%) populated *OK*
+      - PERMIT_DATE: 19,935 / 20,031 (99.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 20,031 / 20,031 (100.0%) populated *OK*
+      - FINAL_DATE: 11,568 / 20,031 (57.8%) populated **FAIL**
+    - Final: 129,346 (59.1%)
+      - FILE_DATE: 76,440 / 76,440 (100.0%) populated *OK*
+      - PERMIT_DATE: 74,293 / 76,440 (97.2%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 76,440 / 76,440 (100.0%) populated *OK*
+      - FINAL_DATE: 76,428 / 76,440 (100.0%) populated *OK*
+    - In Review: 129,346 (7.8%)
+      - FILE_DATE: 10,145 / 10,145 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,201 / 10,145 (21.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 10,145 / 10,145 (100.0%) populated *OK*
+      - FINAL_DATE: 834 / 10,145 (8.2%) populated **FAIL**
+    - Inactive: 129,346 (17.6%)
+      - FILE_DATE: 22,728 / 22,728 (100.0%) populated *OK*
+      - PERMIT_DATE: 16,054 / 22,728 (70.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 22,728 / 22,728 (100.0%) populated *OK*
+      - FINAL_DATE: 5,378 / 22,728 (23.7%) populated **FAIL**
+
+## Glendora 
+  - STATUS_NORMALIZED: 33,364/33,377 (100.0%) populated *OK*
+    - Active: 33,377 (37.3%)
+      - FILE_DATE: 12,447 / 12,447 (100.0%) populated *OK*
+      - PERMIT_DATE: 10,651 / 12,447 (85.6%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 12,447 / 12,447 (100.0%) populated *OK*
+      - FINAL_DATE: 26 / 12,447 (0.2%) populated **FAIL**
+    - Final: 33,377 (48.6%)
+      - FILE_DATE: 16,222 / 16,222 (100.0%) populated *OK*
+      - PERMIT_DATE: 15,890 / 16,222 (98.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 16,222 / 16,222 (100.0%) populated *OK*
+      - FINAL_DATE: 15,879 / 16,222 (97.9%) populated *OK*
+    - In Review: 33,377 (7.7%)
+      - FILE_DATE: 2,572 / 2,573 (100.0%) populated *OK*
+      - PERMIT_DATE: 25 / 2,573 (1.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,572 / 2,573 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 2,573 (0.1%) populated **FAIL**
+    - Inactive: 33,377 (6.4%)
+      - FILE_DATE: 2,122 / 2,122 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,613 / 2,122 (76.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,122 / 2,122 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 2,122 (0.1%) populated **FAIL**
+
+## Hawthorne 
+  - STATUS_NORMALIZED: 1,899/1,899 (100.0%) populated *OK*
+    - Active: 1,899 (16.1%)
+      - FILE_DATE: 305 / 305 (100.0%) populated *OK*
+      - PERMIT_DATE: 305 / 305 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 305 / 305 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 305 (0.7%) populated **FAIL**
+    - Final: 1,899 (19.3%)
+      - FILE_DATE: 366 / 366 (100.0%) populated *OK*
+      - PERMIT_DATE: 366 / 366 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 366 / 366 (100.0%) populated *OK*
+      - FINAL_DATE: 366 / 366 (100.0%) populated *OK*
+    - In Review: 1,899 (44.7%)
+      - FILE_DATE: 849 / 849 (100.0%) populated *OK*
+      - PERMIT_DATE: 100 / 849 (11.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 849 / 849 (100.0%) populated *OK*
+      - FINAL_DATE: 3 / 849 (0.4%) populated **FAIL**
+    - Inactive: 1,899 (20.0%)
+      - FILE_DATE: 379 / 379 (100.0%) populated *OK*
+      - PERMIT_DATE: 267 / 379 (70.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 379 / 379 (100.0%) populated *OK*
+      - FINAL_DATE: 14 / 379 (3.7%) populated **FAIL**
+
+## Hermosa Beach 
+  - STATUS_NORMALIZED: 43,831/44,140 (99.3%) populated *OK*
+    - Active: 44,140 (10.0%)
+      - FILE_DATE: 4,371 / 4,371 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,862 / 4,371 (88.4%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 4,371 / 4,371 (100.0%) populated *OK*
+      - FINAL_DATE: 53 / 4,371 (1.2%) populated **FAIL**
+    - Final: 44,140 (77.5%)
+      - FILE_DATE: 33,955 / 33,955 (100.0%) populated *OK*
+      - PERMIT_DATE: 28,185 / 33,955 (83.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 33,955 / 33,955 (100.0%) populated *OK*
+      - FINAL_DATE: 28,829 / 33,955 (84.9%) populated **FAIL**
+    - In Review: 44,140 (5.4%)
+      - FILE_DATE: 2,376 / 2,376 (100.0%) populated *OK*
+      - PERMIT_DATE: 10 / 2,376 (0.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,376 / 2,376 (100.0%) populated *OK*
+      - FINAL_DATE: 4 / 2,376 (0.2%) populated **FAIL**
+    - Inactive: 44,140 (7.1%)
+      - FILE_DATE: 3,129 / 3,129 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,268 / 3,129 (72.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,129 / 3,129 (100.0%) populated *OK*
+      - FINAL_DATE: 54 / 3,129 (1.7%) populated **FAIL**
+
+## Inglewood 
+  - STATUS_NORMALIZED: 3,928/16,278 (24.1%) populated **FAIL**
+    - Active: 16,278 (17.7%)
+      - FILE_DATE: 697 / 697 (100.0%) populated *OK*
+      - PERMIT_DATE: 358 / 697 (51.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 697 / 697 (100.0%) populated *OK*
+      - FINAL_DATE: 1 / 697 (0.1%) populated **FAIL**
+    - Final: 16,278 (18.0%)
+      - FILE_DATE: 706 / 706 (100.0%) populated *OK*
+      - PERMIT_DATE: 681 / 706 (96.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 706 / 706 (100.0%) populated *OK*
+      - FINAL_DATE: 697 / 706 (98.7%) populated *OK*
+    - In Review: 16,278 (63.3%)
+      - FILE_DATE: 2,487 / 2,487 (100.0%) populated *OK*
+      - PERMIT_DATE: 0 / 2,487 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,487 / 2,487 (100.0%) populated *OK*
+      - FINAL_DATE: 3 / 2,487 (0.1%) populated **FAIL**
+    - Inactive: 16,278 (1.0%)
+      - FILE_DATE: 38 / 38 (100.0%) populated *OK*
+      - PERMIT_DATE: 31 / 38 (81.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 38 / 38 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 38 (0.0%) populated **FAIL**
+
+## La Cañada Flintridge 
+  - STATUS_NORMALIZED: 16,269/17,537 (92.8%) populated *OK*
+    - Active: 17,537 (12.1%)
+      - FILE_DATE: 1,961 / 1,961 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,959 / 1,961 (99.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 1,961 / 1,961 (100.0%) populated *OK*
+      - FINAL_DATE: 82 / 1,961 (4.2%) populated **FAIL**
+    - Final: 17,537 (48.1%)
+      - FILE_DATE: 7,833 / 7,833 (100.0%) populated *OK*
+      - PERMIT_DATE: 7,828 / 7,833 (99.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 7,833 / 7,833 (100.0%) populated *OK*
+      - FINAL_DATE: 7,833 / 7,833 (100.0%) populated *OK*
+    - In Review: 17,537 (8.8%)
+      - FILE_DATE: 1,429 / 1,429 (100.0%) populated *OK*
+      - PERMIT_DATE: 12 / 1,429 (0.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,429 / 1,429 (100.0%) populated *OK*
+      - FINAL_DATE: 4 / 1,429 (0.3%) populated **FAIL**
+    - Inactive: 17,537 (31.0%)
+      - FILE_DATE: 5,046 / 5,046 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,480 / 5,046 (49.1%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 5,046 / 5,046 (100.0%) populated *OK*
+      - FINAL_DATE: 2,004 / 5,046 (39.7%) populated **FAIL**
+
+## La Habra 
+  - STATUS_NORMALIZED: 22,001/22,001 (100.0%) populated *OK*
+    - Active: 22,001 (7.8%)
+      - FILE_DATE: 1,710 / 1,710 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,704 / 1,710 (99.6%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 1,710 / 1,710 (100.0%) populated *OK*
+      - FINAL_DATE: 21 / 1,710 (1.2%) populated **FAIL**
+    - Final: 22,001 (75.4%)
+      - FILE_DATE: 16,583 / 16,583 (100.0%) populated *OK*
+      - PERMIT_DATE: 15,494 / 16,583 (93.4%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 16,583 / 16,583 (100.0%) populated *OK*
+      - FINAL_DATE: 15,531 / 16,583 (93.7%) populated *OK*
+    - In Review: 22,001 (7.4%)
+      - FILE_DATE: 1,619 / 1,619 (100.0%) populated *OK*
+      - PERMIT_DATE: 194 / 1,619 (12.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,619 / 1,619 (100.0%) populated *OK*
+      - FINAL_DATE: 121 / 1,619 (7.5%) populated **FAIL**
+    - Inactive: 22,001 (9.5%)
+      - FILE_DATE: 2,089 / 2,089 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,984 / 2,089 (95.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 2,089 / 2,089 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 2,089 (0.1%) populated **FAIL**
+
+## Lancaster 
+  - STATUS_NORMALIZED: 32,323/33,060 (97.8%) populated *OK*
+    - Active: 33,060 (17.6%)
+      - FILE_DATE: 5,692 / 5,692 (100.0%) populated *OK*
+      - PERMIT_DATE: 5,477 / 5,692 (96.2%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 5,692 / 5,692 (100.0%) populated *OK*
+      - FINAL_DATE: 520 / 5,692 (9.1%) populated **FAIL**
+    - Final: 33,060 (60.3%)
+      - FILE_DATE: 19,503 / 19,503 (100.0%) populated *OK*
+      - PERMIT_DATE: 8,109 / 19,503 (41.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 19,503 / 19,503 (100.0%) populated *OK*
+      - FINAL_DATE: 8,204 / 19,503 (42.1%) populated **FAIL**
+    - In Review: 33,060 (11.3%)
+      - FILE_DATE: 3,661 / 3,661 (100.0%) populated *OK*
+      - PERMIT_DATE: 4 / 3,661 (0.1%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,661 / 3,661 (100.0%) populated *OK*
+      - FINAL_DATE: 5 / 3,661 (0.1%) populated **FAIL**
+    - Inactive: 33,060 (10.7%)
+      - FILE_DATE: 3,467 / 3,467 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,184 / 3,467 (34.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,467 / 3,467 (100.0%) populated *OK*
+      - FINAL_DATE: 18 / 3,467 (0.5%) populated **FAIL**
+
+## Lomita 
+  - STATUS_NORMALIZED: 7,613/7,613 (100.0%) populated *OK*
+    - Active: 7,613 (13.2%)
+      - FILE_DATE: 1,004 / 1,004 (100.0%) populated *OK*
+      - PERMIT_DATE: 0 / 1,004 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 1,004 / 1,004 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 1,004 (0.0%) populated **FAIL**
+    - Final: 7,613 (75.6%)
+      - FILE_DATE: 5,753 / 5,755 (100.0%) populated *OK*
+      - PERMIT_DATE: 0 / 5,755 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 5,753 / 5,755 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 5,755 (0.0%) populated **FAIL**
+    - In Review: 7,613 (5.0%)
+      - FILE_DATE: 383 / 383 (100.0%) populated *OK*
+      - PERMIT_DATE: 0 / 383 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 383 / 383 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 383 (0.0%) populated **FAIL**
+    - Inactive: 7,613 (6.2%)
+      - FILE_DATE: 471 / 471 (100.0%) populated *OK*
+      - PERMIT_DATE: 0 / 471 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 471 / 471 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 471 (0.0%) populated **FAIL**
+
+## Long Beach 
+  - STATUS_NORMALIZED: 214,020/390,390 (54.8%) populated **FAIL**
+    - Active: 390,390 (11.1%)
+      - FILE_DATE: 0 / 23,860 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 0 / 23,860 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 0 / 23,860 (0.0%) populated **FAIL**
+      - FINAL_DATE: 22,693 / 23,860 (95.1%) populated *OK*
+    - Final: 390,390 (68.9%)
+      - FILE_DATE: 0 / 147,473 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 0 / 147,473 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 0 / 147,473 (0.0%) populated **FAIL**
+      - FINAL_DATE: 146,146 / 147,473 (99.1%) populated *OK*
+    - In Review: 390,390 (7.1%)
+      - FILE_DATE: 0 / 15,101 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 0 / 15,101 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 0 / 15,101 (0.0%) populated **FAIL**
+      - FINAL_DATE: 13,779 / 15,101 (91.2%) populated *OK*
+    - Inactive: 390,390 (12.9%)
+      - FILE_DATE: 0 / 27,586 (0.0%) populated **FAIL**
+      - PERMIT_DATE: 0 / 27,586 (0.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 0 / 27,586 (0.0%) populated **FAIL**
+      - FINAL_DATE: 23,590 / 27,586 (85.5%) populated *OK*
+
+## Los Angeles 
+  - STATUS_NORMALIZED: 3,937,445/4,193,329 (93.9%) populated *OK*
+    - Active: 4,193,329 (12.9%)
+      - FILE_DATE: 135,906 / 507,831 (26.8%) populated **FAIL**
+      - PERMIT_DATE: 507,769 / 507,831 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 507,820 / 507,831 (100.0%) populated *OK*
+      - FINAL_DATE: 4,648 / 507,831 (0.9%) populated **FAIL**
+    - Final: 4,193,329 (70.1%)
+      - FILE_DATE: 743,378 / 2,758,707 (26.9%) populated **FAIL**
+      - PERMIT_DATE: 2,757,225 / 2,758,707 (99.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 2,757,976 / 2,758,707 (100.0%) populated *OK*
+      - FINAL_DATE: 2,691,841 / 2,758,707 (97.6%) populated *OK*
+    - In Review: 4,193,329 (9.4%)
+      - FILE_DATE: 336,498 / 371,132 (90.7%) populated *OK*
+      - PERMIT_DATE: 20,263 / 371,132 (5.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 342,454 / 371,132 (92.3%) populated *OK*
+      - FINAL_DATE: 6,666 / 371,132 (1.8%) populated **FAIL**
+    - Inactive: 4,193,329 (7.6%)
+      - FILE_DATE: 54,915 / 299,775 (18.3%) populated **FAIL**
+      - PERMIT_DATE: 274,819 / 299,775 (91.7%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 289,181 / 299,775 (96.5%) populated *OK*
+      - FINAL_DATE: 3,811 / 299,775 (1.3%) populated **FAIL**
+
+## Los Angeles County 
+  - STATUS_NORMALIZED: 458,381/458,381 (100.0%) populated *OK*
+    - Active: 458,381 (25.7%)
+      - FILE_DATE: 117,886 / 117,886 (100.0%) populated *OK*
+      - PERMIT_DATE: 117,885 / 117,886 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 117,886 / 117,886 (100.0%) populated *OK*
+      - FINAL_DATE: 5,087 / 117,886 (4.3%) populated **FAIL**
+    - Final: 458,381 (48.9%)
+      - FILE_DATE: 224,094 / 224,094 (100.0%) populated *OK*
+      - PERMIT_DATE: 217,024 / 224,094 (96.8%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 224,094 / 224,094 (100.0%) populated *OK*
+      - FINAL_DATE: 224,043 / 224,094 (100.0%) populated *OK*
+    - In Review: 458,381 (13.8%)
+      - FILE_DATE: 63,053 / 63,053 (100.0%) populated *OK*
+      - PERMIT_DATE: 4,491 / 63,053 (7.1%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 63,053 / 63,053 (100.0%) populated *OK*
+      - FINAL_DATE: 2,484 / 63,053 (3.9%) populated **FAIL**
+    - Inactive: 458,381 (11.6%)
+      - FILE_DATE: 53,348 / 53,348 (100.0%) populated *OK*
+      - PERMIT_DATE: 7,530 / 53,348 (14.1%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 53,348 / 53,348 (100.0%) populated *OK*
+      - FINAL_DATE: 552 / 53,348 (1.0%) populated **FAIL**
+
+## Manhattan Beach 
+  - STATUS_NORMALIZED: 74,257/74,257 (100.0%) populated *OK*
+    - Active: 74,257 (21.4%)
+      - FILE_DATE: 15,890 / 15,890 (100.0%) populated *OK*
+      - PERMIT_DATE: 15,823 / 15,890 (99.6%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 15,890 / 15,890 (100.0%) populated *OK*
+      - FINAL_DATE: 324 / 15,890 (2.0%) populated **FAIL**
+    - Final: 74,257 (51.6%)
+      - FILE_DATE: 38,283 / 38,283 (100.0%) populated *OK*
+      - PERMIT_DATE: 38,093 / 38,283 (99.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 38,283 / 38,283 (100.0%) populated *OK*
+      - FINAL_DATE: 38,218 / 38,283 (99.8%) populated *OK*
+    - In Review: 74,257 (6.4%)
+      - FILE_DATE: 4,759 / 4,759 (100.0%) populated *OK*
+      - PERMIT_DATE: 548 / 4,759 (11.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,759 / 4,759 (100.0%) populated *OK*
+      - FINAL_DATE: 482 / 4,759 (10.1%) populated **FAIL**
+    - Inactive: 74,257 (20.6%)
+      - FILE_DATE: 15,325 / 15,325 (100.0%) populated *OK*
+      - PERMIT_DATE: 10,659 / 15,325 (69.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 15,325 / 15,325 (100.0%) populated *OK*
+      - FINAL_DATE: 4,726 / 15,325 (30.8%) populated **FAIL**
+
+## Monterey Park 
+  - STATUS_NORMALIZED: 36,298/36,328 (99.9%) populated *OK*
+    - Active: 36,328 (27.5%)
+      - FILE_DATE: 9,981 / 9,981 (100.0%) populated *OK*
+      - PERMIT_DATE: 5,971 / 9,981 (59.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 9,981 / 9,981 (100.0%) populated *OK*
+      - FINAL_DATE: 5 / 9,981 (0.1%) populated **FAIL**
+    - Final: 36,328 (48.7%)
+      - FILE_DATE: 17,666 / 17,666 (100.0%) populated *OK*
+      - PERMIT_DATE: 16,748 / 17,666 (94.8%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 17,666 / 17,666 (100.0%) populated *OK*
+      - FINAL_DATE: 16,599 / 17,666 (94.0%) populated *OK*
+    - In Review: 36,328 (11.5%)
+      - FILE_DATE: 4,180 / 4,180 (100.0%) populated *OK*
+      - PERMIT_DATE: 25 / 4,180 (0.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,180 / 4,180 (100.0%) populated *OK*
+      - FINAL_DATE: 1 / 4,180 (0.0%) populated **FAIL**
+    - Inactive: 36,328 (12.3%)
+      - FILE_DATE: 4,471 / 4,471 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,230 / 4,471 (72.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,471 / 4,471 (100.0%) populated *OK*
+      - FINAL_DATE: 14 / 4,471 (0.3%) populated **FAIL**
+
+## Palmdale 
+  - STATUS_NORMALIZED: 120,463/133,835 (90.0%) populated *OK*
+    - Active: 133,835 (12.0%)
+      - FILE_DATE: 14,415 / 14,415 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,370 / 14,415 (16.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 14,415 / 14,415 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 14,415 (0.0%) populated **FAIL**
+    - Final: 133,835 (64.5%)
+      - FILE_DATE: 77,661 / 77,661 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,895 / 77,661 (5.0%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 77,661 / 77,661 (100.0%) populated *OK*
+      - FINAL_DATE: 14 / 77,661 (0.0%) populated **FAIL**
+    - In Review: 133,835 (6.5%)
+      - FILE_DATE: 7,884 / 7,884 (100.0%) populated *OK*
+      - PERMIT_DATE: 31 / 7,884 (0.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 7,884 / 7,884 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 7,884 (0.0%) populated **FAIL**
+    - Inactive: 133,835 (17.0%)
+      - FILE_DATE: 20,503 / 20,503 (100.0%) populated *OK*
+      - PERMIT_DATE: 908 / 20,503 (4.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 20,503 / 20,503 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 20,503 (0.0%) populated **FAIL**
+
+## Palos Verdes Estates 
+  - STATUS_NORMALIZED: 6,366/8,347 (76.3%) populated **FAIL**
+    - Active: 8,347 (10.0%)
+      - FILE_DATE: 637 / 637 (100.0%) populated *OK*
+      - PERMIT_DATE: 634 / 637 (99.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 637 / 637 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 637 (0.0%) populated **FAIL**
+    - Final: 8,347 (59.9%)
+      - FILE_DATE: 3,811 / 3,811 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,808 / 3,811 (99.9%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 3,811 / 3,811 (100.0%) populated *OK*
+      - FINAL_DATE: 3,809 / 3,811 (99.9%) populated *OK*
+    - In Review: 8,347 (8.0%)
+      - FILE_DATE: 511 / 511 (100.0%) populated *OK*
+      - PERMIT_DATE: 22 / 511 (4.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 511 / 511 (100.0%) populated *OK*
+      - FINAL_DATE: 1 / 511 (0.2%) populated **FAIL**
+    - Inactive: 8,347 (22.1%)
+      - FILE_DATE: 1,407 / 1,407 (100.0%) populated *OK*
+      - PERMIT_DATE: 1,289 / 1,407 (91.6%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 1,407 / 1,407 (100.0%) populated *OK*
+      - FINAL_DATE: 19 / 1,407 (1.4%) populated **FAIL**
+
+## Pasadena 
+  - STATUS_NORMALIZED: 280,683/280,683 (100.0%) populated *OK*
+    - Active: 280,683 (27.6%)
+      - FILE_DATE: 77,376 / 77,376 (100.0%) populated *OK*
+      - PERMIT_DATE: 75,340 / 77,376 (97.4%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 77,376 / 77,376 (100.0%) populated *OK*
+      - FINAL_DATE: 49,391 / 77,376 (63.8%) populated **FAIL**
+    - Final: 280,683 (44.5%)
+      - FILE_DATE: 124,895 / 124,895 (100.0%) populated *OK*
+      - PERMIT_DATE: 118,079 / 124,895 (94.5%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 124,895 / 124,895 (100.0%) populated *OK*
+      - FINAL_DATE: 120,045 / 124,895 (96.1%) populated *OK*
+    - In Review: 280,683 (4.0%)
+      - FILE_DATE: 11,252 / 11,252 (100.0%) populated *OK*
+      - PERMIT_DATE: 627 / 11,252 (5.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 11,252 / 11,252 (100.0%) populated *OK*
+      - FINAL_DATE: 468 / 11,252 (4.2%) populated **FAIL**
+    - Inactive: 280,683 (23.9%)
+      - FILE_DATE: 67,160 / 67,160 (100.0%) populated *OK*
+      - PERMIT_DATE: 45,894 / 67,160 (68.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 67,160 / 67,160 (100.0%) populated *OK*
+      - FINAL_DATE: 4,026 / 67,160 (6.0%) populated **FAIL**
+
+## Santa Clarita 
+  - STATUS_NORMALIZED: 189,269/190,027 (99.6%) populated *OK*
+    - Active: 190,027 (8.8%)
+      - FILE_DATE: 16,731 / 16,731 (100.0%) populated *OK*
+      - PERMIT_DATE: 12,109 / 16,731 (72.4%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 16,731 / 16,731 (100.0%) populated *OK*
+      - FINAL_DATE: 45 / 16,731 (0.3%) populated **FAIL**
+    - Final: 190,027 (76.4%)
+      - FILE_DATE: 144,513 / 144,513 (100.0%) populated *OK*
+      - PERMIT_DATE: 33,964 / 144,513 (23.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 144,513 / 144,513 (100.0%) populated *OK*
+      - FINAL_DATE: 35,319 / 144,513 (24.4%) populated **FAIL**
+    - In Review: 190,027 (3.0%)
+      - FILE_DATE: 5,692 / 5,692 (100.0%) populated *OK*
+      - PERMIT_DATE: 166 / 5,692 (2.9%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 5,692 / 5,692 (100.0%) populated *OK*
+      - FINAL_DATE: 9 / 5,692 (0.2%) populated **FAIL**
+    - Inactive: 190,027 (11.8%)
+      - FILE_DATE: 22,333 / 22,333 (100.0%) populated *OK*
+      - PERMIT_DATE: 788 / 22,333 (3.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 22,333 / 22,333 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 22,333 (0.0%) populated **FAIL**
+
+## Santa Monica 
+  - STATUS_NORMALIZED: 91,934/92,697 (99.2%) populated *OK*
+    - Active: 92,697 (6.7%)
+      - FILE_DATE: 6,172 / 6,172 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,449 / 6,172 (55.9%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 6,172 / 6,172 (100.0%) populated *OK*
+      - FINAL_DATE: 13 / 6,172 (0.2%) populated **FAIL**
+    - Final: 92,697 (46.4%)
+      - FILE_DATE: 42,688 / 42,688 (100.0%) populated *OK*
+      - PERMIT_DATE: 22,693 / 42,688 (53.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 42,688 / 42,688 (100.0%) populated *OK*
+      - FINAL_DATE: 23,067 / 42,688 (54.0%) populated **FAIL**
+    - In Review: 92,697 (17.5%)
+      - FILE_DATE: 16,060 / 16,060 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,988 / 16,060 (24.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 16,060 / 16,060 (100.0%) populated *OK*
+      - FINAL_DATE: 202 / 16,060 (1.3%) populated **FAIL**
+    - Inactive: 92,697 (29.4%)
+      - FILE_DATE: 27,014 / 27,014 (100.0%) populated *OK*
+      - PERMIT_DATE: 3,948 / 27,014 (14.6%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 27,014 / 27,014 (100.0%) populated *OK*
+      - FINAL_DATE: 46 / 27,014 (0.2%) populated **FAIL**
+
+## South El Monte 
+  - STATUS_NORMALIZED: 4,266/4,273 (99.8%) populated *OK*
+    - Active: 4,273 (20.9%)
+      - FILE_DATE: 893 / 893 (100.0%) populated *OK*
+      - PERMIT_DATE: 828 / 893 (92.7%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 893 / 893 (100.0%) populated *OK*
+      - FINAL_DATE: 4 / 893 (0.4%) populated **FAIL**
+    - Final: 4,273 (19.2%)
+      - FILE_DATE: 820 / 820 (100.0%) populated *OK*
+      - PERMIT_DATE: 638 / 820 (77.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 820 / 820 (100.0%) populated *OK*
+      - FINAL_DATE: 664 / 820 (81.0%) populated **FAIL**
+    - In Review: 4,273 (47.8%)
+      - FILE_DATE: 2,039 / 2,039 (100.0%) populated *OK*
+      - PERMIT_DATE: 7 / 2,039 (0.3%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 2,039 / 2,039 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 2,039 (0.1%) populated **FAIL**
+    - Inactive: 4,273 (12.0%)
+      - FILE_DATE: 514 / 514 (100.0%) populated *OK*
+      - PERMIT_DATE: 9 / 514 (1.8%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 514 / 514 (100.0%) populated *OK*
+      - FINAL_DATE: 0 / 514 (0.0%) populated **FAIL**
+
+## Torrance 
+  - STATUS_NORMALIZED: 119,747/120,427 (99.4%) populated *OK*
+    - Active: 120,427 (23.4%)
+      - FILE_DATE: 27,977 / 27,977 (100.0%) populated *OK*
+      - PERMIT_DATE: 25,752 / 27,977 (92.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 27,977 / 27,977 (100.0%) populated *OK*
+      - FINAL_DATE: 56 / 27,977 (0.2%) populated **FAIL**
+    - Final: 120,427 (30.0%)
+      - FILE_DATE: 35,917 / 35,917 (100.0%) populated *OK*
+      - PERMIT_DATE: 35,902 / 35,917 (100.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 35,917 / 35,917 (100.0%) populated *OK*
+      - FINAL_DATE: 35,726 / 35,917 (99.5%) populated *OK*
+    - In Review: 120,427 (42.7%)
+      - FILE_DATE: 51,118 / 51,118 (100.0%) populated *OK*
+      - PERMIT_DATE: 45,112 / 51,118 (88.3%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 51,118 / 51,118 (100.0%) populated *OK*
+      - FINAL_DATE: 43,160 / 51,118 (84.4%) populated **FAIL**
+    - Inactive: 120,427 (4.0%)
+      - FILE_DATE: 4,735 / 4,735 (100.0%) populated *OK*
+      - PERMIT_DATE: 2,721 / 4,735 (57.5%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 4,735 / 4,735 (100.0%) populated *OK*
+      - FINAL_DATE: 80 / 4,735 (1.7%) populated **FAIL**
+
+## Whittier 
+  - STATUS_NORMALIZED: 29,633/29,934 (99.0%) populated *OK*
+    - Active: 29,934 (31.0%)
+      - FILE_DATE: 9,190 / 9,190 (100.0%) populated *OK*
+      - PERMIT_DATE: 7,994 / 9,190 (87.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 9,190 / 9,190 (100.0%) populated *OK*
+      - FINAL_DATE: 122 / 9,190 (1.3%) populated **FAIL**
+    - Final: 29,934 (45.7%)
+      - FILE_DATE: 13,534 / 13,534 (100.0%) populated *OK*
+      - PERMIT_DATE: 11,914 / 13,534 (88.0%) populated *OK*
+      - FILE_OR_PERMIT_DATE: 13,534 / 13,534 (100.0%) populated *OK*
+      - FINAL_DATE: 11,949 / 13,534 (88.3%) populated *OK*
+    - In Review: 29,934 (13.1%)
+      - FILE_DATE: 3,874 / 3,874 (100.0%) populated *OK*
+      - PERMIT_DATE: 8 / 3,874 (0.2%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,874 / 3,874 (100.0%) populated *OK*
+      - FINAL_DATE: 38 / 3,874 (1.0%) populated **FAIL**
+    - Inactive: 29,934 (10.2%)
+      - FILE_DATE: 3,035 / 3,035 (100.0%) populated *OK*
+      - PERMIT_DATE: 263 / 3,035 (8.7%) populated **FAIL**
+      - FILE_OR_PERMIT_DATE: 3,035 / 3,035 (100.0%) populated *OK*
+      - FINAL_DATE: 2 / 3,035 (0.1%) populated **FAIL**
+
+## Summary
+  - Active:
+    - FILE_DATE: 32 / 35 usable jurisdictions
+    - PERMIT_DATE: 25 / 35 usable jurisdictions
+    - FILE_OR_PERMIT_DATE: 34 / 35 usable jurisdictions
+    - FINAL_DATE: 1 / 35 usable jurisdictions
+
+  - Final:
+    - FILE_DATE: 32 / 35 usable jurisdictions
+    - PERMIT_DATE: 25 / 35 usable jurisdictions
+    - FILE_OR_PERMIT_DATE: 34 / 35 usable jurisdictions
+    - FINAL_DATE: 26 / 35 usable jurisdictions
+
+  - In Review:
+    - FILE_DATE: 33 / 35 usable jurisdictions
+    - PERMIT_DATE: 1 / 35 usable jurisdictions
+    - FILE_OR_PERMIT_DATE: 33 / 35 usable jurisdictions
+    - FINAL_DATE: 2 / 35 usable jurisdictions
+
+  - Inactive:
+    - FILE_DATE: 32 / 35 usable jurisdictions
+    - PERMIT_DATE: 5 / 35 usable jurisdictions
+    - FILE_OR_PERMIT_DATE: 33 / 35 usable jurisdictions
+    - FINAL_DATE: 3 / 35 usable jurisdictions
