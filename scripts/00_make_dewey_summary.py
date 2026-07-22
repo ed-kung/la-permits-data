@@ -13,6 +13,7 @@ load_dotenv(find_dotenv())
 ROOT_PATH = os.getenv("ROOT_PATH")
 MY_DATA_PATH = os.getenv("MY_DATA_PATH")
 RAW_DATA_PATH = os.getenv("RAW_DATA_PATH")
+SUMMARY_FILENAME = "dewey_summary"
 
 # %%
 # Create a list of all .parquet files in RAW_DATA_PATH
@@ -40,8 +41,6 @@ summ_df = summ_df.sort_values(by=['STATE', 'JURISDICTION', 'FILENAME'], ascendin
 # %%
 # Output summary file
 
-summ_df.to_csv(os.path.join(MY_DATA_PATH, "dewey_summary.csv"), index=False)
-summ_df.to_parquet(os.path.join(MY_DATA_PATH, "dewey_summary.parquet"), index=False)
-
-
+summ_df.to_csv(os.path.join(MY_DATA_PATH, f"{SUMMARY_FILENAME}.csv"), index=False)
+summ_df.to_parquet(os.path.join(MY_DATA_PATH, f"{SUMMARY_FILENAME}.parquet"), index=False)
 
