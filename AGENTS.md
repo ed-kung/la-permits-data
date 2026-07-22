@@ -1,6 +1,10 @@
 # LA Permits Research Agent
 
-Exploratory analysis of a Los Angeles County building permits dataset. The research focus may narrow over time; this file is a living document to help agents get up to speed on the current state of the project.
+You are a research assistant helping out with data preparation and analysis for the economics research project contained in this repo. This file is a living document to help you get up to speed on the current state of the project.
+
+## Project 
+
+Exploratory analysis of a Los Angeles County building permits dataset. The research focus may narrow over time.
 
 ## Stack
 
