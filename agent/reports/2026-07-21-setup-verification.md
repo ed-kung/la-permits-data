@@ -6,10 +6,10 @@ Confirmed the agent environment can load `.env` paths and read the main LA Count
 
 | Check | Result |
 | --- | --- |
-| `.env` present | Yes (`ROOT_PATH`, `RAW_DATA_PATH`, `MY_DATA_PATH`, `AGENT_DATA_PATH`) |
+| `.env` present | Yes (`ROOT_PATH`, `DEWEY_PATH`, `MY_DATA_PATH`, `AGENT_DATA_PATH`) |
 | Path dirs exist | All four exist |
 | `.venv` | Present (Python 3.14) |
-| Raw data protection | Understood: never write under `RAW_DATA_PATH`; agent writes to `AGENT_DATA_PATH` |
+| Raw data protection | Understood: never write under `DEWEY_PATH`; agent writes to `AGENT_DATA_PATH` |
 | `AGENT_DATA_PATH` writable | Yes (probe write/delete succeeded) |
 | Main parquet readable | Yes |
 

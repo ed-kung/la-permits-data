@@ -18,11 +18,11 @@ Paths are set in `.env` (see `.env.example`):
 
 | Variable | Role |
 | --- | --- |
-| `RAW_DATA_PATH` | Local directory with the original raw data (**read-only**) |
-| `MY_DATA_PATH` | Local directory for intermediate datasets processed by the human user |
+| `DEWEY_PATH` | Local directory with the original raw permits data from Dewey (**read-only**) |
+| `MY_DATA_PATH` | Local directory for additional datasets processed by the human user (**read-only**) |
 | `AGENT_DATA_PATH` | Local directory for files and artifacts stored by the agent |
 
-Never overwrite, modify, or delete anything under `RAW_DATA_PATH`. Write all derived artifacts to `AGENT_DATA_PATH`.
+Never overwrite, modify, or delete anything under `DEWEY_PATH` or `MY_DATA_PATH`. Write all derived artifacts to `AGENT_DATA_PATH`.
 
 ## Main data file(s)
 

@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 
 ROOT_PATH = os.getenv("ROOT_PATH")
 MY_DATA_PATH = os.getenv("MY_DATA_PATH")
-RAW_DATA_PATH = os.getenv("RAW_DATA_PATH")
+DEWEY_PATH = os.getenv("DEWEY_PATH")
 
 SUMMARY_FILEPATH = os.path.join(MY_DATA_PATH, "dewey_summary.parquet")
 JURISDICTIONS_FILEPATH = os.path.join(MY_DATA_PATH, "raw_data", "dewey_la_county_jurisdictions.csv")
@@ -38,7 +38,7 @@ t0 = time.time()
 for i, f in enumerate(FILENAMES):
     dt = time.time() - t0
     print(f"\rProcessing {f}: ({i+1}/{len(FILENAMES)}) ... elapsed time = {dt/60:,.2f} minutes", end="", flush=True)
-    df = pd.read_parquet(os.path.join(RAW_DATA_PATH, f))
+    df = pd.read_parquet(os.path.join(DEWEY_PATH, f))
     df = df.loc[df['STATE'] == 'CA']
     df = df.loc[df['JURISDICTION'].isin(JURISDICTIONS)]
     df['FILE_DATE'] = pd.to_datetime(df['FILE_DATE'], errors='coerce')
