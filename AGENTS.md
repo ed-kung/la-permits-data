@@ -30,7 +30,14 @@ The main data file that we are currently working with is `MY_DATA_PATH/processed
 
 The data contains permits from jurisdictions in Los Angeles County.
 
+- Shape (verified 2026-07-21): **7,593,533 rows × 117 columns** (~4.7 GB parquet)
+- Jurisdiction field: `JURISDICTION` (also has `CITY`, `COUNTY`, date fields, `JOB_VALUE`, status, description, and many typed permit flags)
+
 A current summary of the usability of the data for each jurisdiction is contained in `ROOT_PATH/reports/2026-07-21-data-usability-report.md`.
+
+## Environment notes
+
+- `.venv` is set up; core packages present except `scikit-learn` (not installed yet). No `requirements.txt` in repo currently.
 
 ## Repo layout
 
