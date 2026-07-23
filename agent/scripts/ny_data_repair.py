@@ -167,6 +167,14 @@ def _repair_dob_issuances(row, d: dict, repairs: dict):
             if isd is not pd.NaT:
                 repairs["PERMIT_DATE"] = isd
                 repairs["PERMIT_DATE_FLAG"] = "FILLED"
+        if "PERMIT_DATE" not in repairs and initials:
+            jsd = _safe_to_datetime(initials[0].get("job_start_date"))
+            if jsd is not pd.NaT:
+                file_date = repairs.get("FILE_DATE", row["FILE_DATE"])
+                file_dt = _safe_to_datetime(file_date)
+                if file_dt is pd.NaT or jsd >= file_dt:
+                    repairs["PERMIT_DATE"] = jsd
+                    repairs["PERMIT_DATE_FLAG"] = "FILLED"
 
     # -- FINAL_DATE --
     if pd.isna(row["FINAL_DATE"]) and effective_status == "Final":
@@ -213,6 +221,12 @@ def _repair_dob_filing_single(row, d: dict, repairs: dict):
             if fpd is not pd.NaT:
                 repairs["PERMIT_DATE"] = fpd
                 repairs["PERMIT_DATE_FLAG"] = "FILLED"
+        if "PERMIT_DATE" not in repairs:
+            file_date = repairs.get("FILE_DATE", row["FILE_DATE"])
+            file_dt = _safe_to_datetime(file_date)
+            if file_dt is not pd.NaT:
+                repairs["PERMIT_DATE"] = file_dt
+                repairs["PERMIT_DATE_FLAG"] = "FILLED"
 
     # -- FINAL_DATE --
     if pd.isna(row["FINAL_DATE"]) and effective_status == "Final":
@@ -255,6 +269,20 @@ def _repair_other(row, d: dict, repairs: dict):
         if pid is not pd.NaT:
             repairs["PERMIT_DATE"] = pid
             repairs["PERMIT_DATE_FLAG"] = "FILLED"
+        if "PERMIT_DATE" not in repairs:
+            jsd = _safe_to_datetime(d.get("job_start_date"))
+            if jsd is not pd.NaT:
+                file_date = repairs.get("FILE_DATE", row["FILE_DATE"])
+                file_dt = _safe_to_datetime(file_date)
+                if file_dt is pd.NaT or jsd >= file_dt:
+                    repairs["PERMIT_DATE"] = jsd
+                    repairs["PERMIT_DATE_FLAG"] = "FILLED"
+        if "PERMIT_DATE" not in repairs:
+            file_date = repairs.get("FILE_DATE", row["FILE_DATE"])
+            file_dt = _safe_to_datetime(file_date)
+            if file_dt is not pd.NaT:
+                repairs["PERMIT_DATE"] = file_dt
+                repairs["PERMIT_DATE_FLAG"] = "FILLED"
 
     # -- FINAL_DATE --
     if pd.isna(row["FINAL_DATE"]) and effective_status == "Final":
