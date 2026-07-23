@@ -169,6 +169,7 @@ def extract_ny_permit_date(data: Union[dict, str, None]) -> Optional[str]:
 
     Searches the DATA column JSON using New York–specific field mappings:
       1. filings[0].fully_permitted                 (DOB filings+issuances schema)
+      1b. filings[0].approved                       (fallback when fully_permitted absent)
       2. permits[Initial Permit].approved_date      (DOB filing+permits schema)
       3. permit_issued_date                         (Electrical permits schema)
       4. filing.permit_issue_date                   (DOB filing+permits fallback)
@@ -180,13 +181,22 @@ def extract_ny_permit_date(data: Union[dict, str, None]) -> Optional[str]:
     if d is None:
         return None
 
-    # Sub-schema A: filings[].fully_permitted
+    # Sub-schema A: filings[].fully_permitted, falling back to approved
+    # fully_permitted is the full permit-issuance date; approved is the
+    # plan-exam approval date (an earlier step).  When fully_permitted is
+    # absent the permit was approved but not yet fully issued, so approved
+    # is the best available proxy for PERMIT_DATE.
     if "filings" in d and isinstance(d["filings"], list):
         for filing in d["filings"]:
-            if isinstance(filing, dict) and filing.get("fully_permitted"):
+            if not isinstance(filing, dict):
+                continue
+            if filing.get("fully_permitted"):
                 if _try_parse_date(filing["fully_permitted"]) is not None:
                     return filing["fully_permitted"]
-                break
+            if filing.get("approved"):
+                if _try_parse_date(filing["approved"]) is not None:
+                    return filing["approved"]
+            break
 
     # Sub-schema B: permits[Initial Permit].approved_date takes priority
     # In the filing+permits schema, PERMIT_DATE maps to approved_date (not
