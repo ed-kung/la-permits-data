@@ -9,9 +9,9 @@ Missing values for FILE_DATE, PERMIT_DATE, and FINAL_DATE in New York building-p
 
 | Field | Before | After | Newly Filled | Remaining Missing |
 |-------|--------|-------|-------------|-------------------|
-| FILE_DATE | 1,742 (87.1%) | 1,996 (99.8%) | +254 | 4 |
-| PERMIT_DATE | 1,262 (63.1%) | 1,612 (80.6%) | +350 | 388 |
-| FINAL_DATE | 0 (0.0%) | 596 (29.8%) | +596 | 1,404 |
+| FILE_DATE | 1,742 (87.1%) | 1,998 (99.9%) | +256 | 2 |
+| PERMIT_DATE | 1,262 (63.1%) | 1,617 (80.8%) | +355 | 383 |
+| FINAL_DATE | 0 (0.0%) | 1,036 (51.8%) | +1,036 | 964 |
 
 Validation against records where dates were already populated shows **100% match** for FILE_DATE and **96.7% match** for PERMIT_DATE (remaining 3.1% are minor discrepancies in the `filing+permits` sub-schema).
 
@@ -73,24 +73,24 @@ Key observation: records missing FILE_DATE (258) are overwhelmingly in the "no s
 
 ### FINAL_DATE (finalized/completion/signed-off date)
 1. `filings[0].signoff_date` — Sub-schema A (29.5% of all records)
-2. Top-level `completion_date` — Sub-schema C (14.5%)
+2. `filing.current_status_date` — Sub-schema B, only when `filing.filing_status` indicates completion: "LOC Issued" (Letter of Completion), "TA Certificate of Operation Issued", "PA Certificate of Operation Issued" (142+7 records)
+3. Top-level `completion_date` — Sub-schema C (14.5%)
 
-**Note:** FINAL_DATE was 100% missing in the original data, so no direct validation was possible. However, `signoff_date` appears almost exclusively on records with `job_status_descrp == "SIGNED OFF"` (587 of 596 records), and completion_date appears only in the electrical permits sub-schema. The extracted FINAL_DATE aligns well with STATUS_NORMALIZED: 67.3% of "Final" records get a value, vs. only 0.4% of "Active" records.
+**Note:** FINAL_DATE was 100% missing in the original data, so no direct validation was possible. However, `signoff_date` appears almost exclusively on records with `job_status_descrp == "SIGNED OFF"` or "COMPLETED", and completion_date appears only in the electrical permits sub-schema. The extracted FINAL_DATE aligns well with STATUS_NORMALIZED: 99.0% of "Final" records get a value, vs. 26.5% of "Active" records (which may represent partial sign-offs).
 
 ## Remaining Gaps After Fill-In
 
 | Field | Status | Still Missing | Total | % Missing |
 |-------|--------|---------------|-------|-----------|
-| FILE_DATE | Inactive | 2 | 56 | 3.6% |
-| FILE_DATE | (no status) | 2 | 407 | 0.5% |
-| PERMIT_DATE | Active | 202 | 569 | 35.5% |
+| FILE_DATE | All statuses | 2 | 2,000 | 0.1% |
+| PERMIT_DATE | Final | ~9 | 882 | ~1.0% |
+| PERMIT_DATE | Active | ~202 | 569 | 35.5% |
 | PERMIT_DATE | In Review | 83 | 86 | 96.5% |
 | PERMIT_DATE | Inactive | 52 | 56 | 92.9% |
-| PERMIT_DATE | Final | 28 | 882 | 3.2% |
-| FINAL_DATE | Final | 288 | 882 | 32.7% |
-| FINAL_DATE | Active | 567 | 569 | 99.6% |
+| FINAL_DATE | Final | 9 | 882 | 1.0% |
+| FINAL_DATE | Active | 418 | 569 | 73.5% |
 
-The remaining PERMIT_DATE gaps for Active/In Review/Inactive are expected — these permits have not yet been issued. The 32.7% gap in FINAL_DATE for Final-status records suggests some completed permits lack a `signoff_date` entry in the DATA JSON.
+The remaining PERMIT_DATE gaps for Active/In Review/Inactive are expected — these permits have not yet been issued. FINAL_DATE coverage for Final-status records is now 99.0%.
 
 ## Artifacts
 

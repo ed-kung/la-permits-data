@@ -37,6 +37,8 @@ Mapping logic (validated against records where dates are already populated):
 
   FINAL_DATE (finalized/completion/signed-off date):
     A → filings[0].signoff_date        (29.8% of all records; 82.9% of Final)
+    B → filing.current_status_date     (when filing_status indicates completion,
+        e.g. "LOC Issued", "Certificate of Operation Issued")
     C → completion_date                (14.5% of all records)
 
 Overall coverage validated on the 2,000-record NY sample:
@@ -224,12 +226,24 @@ def extract_ny_permit_date(data: Union[dict, str, None]) -> Optional[str]:
     return None
 
 
+# Filing statuses in the filing+permits sub-schema (B) that indicate the
+# permit has reached a final/completed state.  "LOC" = Letter of Completion.
+_NY_COMPLETION_STATUSES = frozenset({
+    "LOC Issued",
+    "TA Certificate of Operation Issued",
+    "PA Certificate of Operation Issued",
+})
+
+
 def extract_ny_final_date(data: Union[dict, str, None]) -> Optional[str]:
     """Extract the finalized/signed-off date (FINAL_DATE) for a New York record.
 
     Searches the DATA column JSON using New York–specific field mappings:
-      1. filings[0].signoff_date   (DOB filings+issuances schema)
-      2. completion_date           (Electrical permits schema)
+      1. filings[0].signoff_date               (DOB filings+issuances schema)
+      2. filing.current_status_date             (DOB filing+permits schema,
+         only when filing.filing_status indicates completion — e.g.
+         "LOC Issued" = Letter of Completion)
+      3. completion_date                        (Electrical permits schema)
 
     Returns the raw date string if found, or None.
 
@@ -249,6 +263,14 @@ def extract_ny_final_date(data: Union[dict, str, None]) -> Optional[str]:
                 if _try_parse_date(filing["signoff_date"]) is not None:
                     return filing["signoff_date"]
                 break
+
+    # Sub-schema B: filing.current_status_date when status indicates completion
+    if "filing" in d and isinstance(d["filing"], dict):
+        filing_status = d["filing"].get("filing_status", "")
+        if filing_status in _NY_COMPLETION_STATUSES:
+            val = d["filing"].get("current_status_date")
+            if _try_parse_date(val) is not None:
+                return val
 
     # Sub-schema C: top-level completion_date
     if "completion_date" in d and not isinstance(d["completion_date"], (dict, list)):
@@ -285,7 +307,7 @@ def fill_ny_dates(df: pd.DataFrame) -> pd.DataFrame:
     ]:
         was_missing = out[col].isna()
         extracted = out.loc[was_missing, "DATA"].apply(extractor)
-        extracted_parsed = pd.to_datetime(extracted, errors="coerce")
+        extracted_parsed = pd.to_datetime(extracted, errors="coerce", format="mixed")
         out.loc[was_missing, col] = extracted_parsed
         out[f"{col}_FILLED"] = False
         out.loc[was_missing & extracted_parsed.notna(), f"{col}_FILLED"] = True
