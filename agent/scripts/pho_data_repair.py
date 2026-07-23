@@ -43,11 +43,12 @@ Mapping logic (validated against records where values are already populated):
        — Provides additional coverage for 111 records missing "issued".
 
   FINAL_DATE (finalized/completion/signed-off date):
-    Strategy: latest CompletedDate among inspections with Result == "PASS".
-    — Matches 88.4% of known FINAL_DATE values (1,185/1,341 with PASS).
-    — Fallback: latest CompletedDate from any inspection (83.2% accuracy).
-    — Only meaningful for DONE-status records (non-DONE records shouldn't
-      have a FINAL_DATE as they haven't been completed).
+    Strategy: latest CompletedDate among inspections whose InspectionType
+    contains "FINAL" (e.g. "699 FINAL INSPECTION", "999 FINAL FIRE
+    INSPECTION", "399 FINAL/ELECTRICAL", etc.).
+    — Matches 85.6% of known FINAL_DATE values (1,032/1,206 with FINAL-type).
+    — No restriction on DATA.status; records of any status may have
+      FINAL-type inspections recorded.
 
   STATUS_NORMALIZED:
     Mapping from DATA.status:
@@ -63,8 +64,8 @@ Mapping logic (validated against records where values are already populated):
 Overall fill potential on the 1,992-record Phoenix sample:
     FILE_DATE       — 0% fillable (no source data)
     PERMIT_DATE     — 113/214 missing values fillable (52.8%)
-    FINAL_DATE      — 18/90 DONE-status missing values fillable (20.0%)
-                      (remaining 542 missing are non-DONE status = expected)
+    FINAL_DATE      — 22/632 missing values fillable (3.5%)
+                      (most missing records simply lack FINAL-type inspections)
     STATUS_NORMALIZED — 75/75 missing values fillable (100%, tentative SHAP mapping)
 """
 
@@ -195,16 +196,16 @@ def extract_pho_permit_date(data: Union[dict, str, None]) -> Optional[str]:
 def extract_pho_final_date(data: Union[dict, str, None]) -> Optional[str]:
     """Extract the finalized/completion date (FINAL_DATE) for a Phoenix record.
 
-    Uses the latest CompletedDate among inspections with Result == "PASS".
-    Falls back to the latest CompletedDate from any inspection if no PASS
-    results exist.
+    Uses the latest CompletedDate among inspections whose InspectionType
+    contains "FINAL" (e.g. "699 FINAL INSPECTION", "999 FINAL FIRE
+    INSPECTION", "399 FINAL/ELECTRICAL", etc.).
 
-    Only intended for records with DATA.status == "DONE"; non-DONE records
-    are not expected to have a FINAL_DATE.
+    No restriction on DATA.status — records of any status (DONE, EXPR,
+    OPEN, VOID, etc.) may have FINAL-type inspections recorded.
 
-    Strategy validation (on records with known FINAL_DATE):
-      - Latest PASS CompletedDate matches 88.4% of known values.
-      - Latest any CompletedDate matches 83.2% of known values.
+    Strategy validation (on 1,360 records with known FINAL_DATE):
+      - Latest FINAL-type inspection matches 85.6% of known values
+        (1,032/1,206 records that have FINAL-type inspections).
 
     Returns the raw /Date(ms)/ string if found, or None.
     """
@@ -212,46 +213,29 @@ def extract_pho_final_date(data: Union[dict, str, None]) -> Optional[str]:
     if d is None:
         return None
 
-    # Only attempt for DONE-status records
-    status = d.get("status")
-    if status != "DONE":
-        return None
-
     inspections = d.get("inspections")
     if not isinstance(inspections, list) or not inspections:
         return None
 
-    latest_pass = None
-    latest_pass_raw = None
-    latest_any = None
-    latest_any_raw = None
+    latest_final = None
+    latest_final_raw = None
 
     for insp in inspections:
         if not isinstance(insp, dict):
+            continue
+        insp_type = (insp.get("InspectionType") or "").upper()
+        if "FINAL" not in insp_type:
             continue
         completed_raw = insp.get("CompletedDate")
         completed = _parse_ms_date(completed_raw)
         if completed is None:
             continue
 
-        # Track latest overall
-        if latest_any is None or completed > latest_any:
-            latest_any = completed
-            latest_any_raw = completed_raw
+        if latest_final is None or completed > latest_final:
+            latest_final = completed
+            latest_final_raw = completed_raw
 
-        # Track latest PASS
-        if insp.get("Result") == "PASS":
-            if latest_pass is None or completed > latest_pass:
-                latest_pass = completed
-                latest_pass_raw = completed_raw
-
-    # Prefer latest PASS; fall back to latest any
-    if latest_pass_raw is not None:
-        return latest_pass_raw
-    if latest_any_raw is not None:
-        return latest_any_raw
-
-    return None
+    return latest_final_raw
 
 
 def extract_pho_status(data: Union[dict, str, None]) -> Optional[str]:
