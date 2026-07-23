@@ -5,6 +5,8 @@ import math
 import re
 from typing import Optional, Union
 
+import pandas as pd
+
 
 # -- Schema detection ---------------------------------------------------------
 #
@@ -94,7 +96,7 @@ def detect_schema(data: Union[dict, str, None]) -> Optional[str]:
 
 # -- Date field extraction ----------------------------------------------------
 
-_DATE_KEY_RE = re.compile(r"date|time", re.IGNORECASE)
+_DATE_KEY_RE = re.compile(r"date|time|status|action|complet|final", re.IGNORECASE)
 
 
 def _is_date_key(key: str) -> bool:
@@ -102,13 +104,25 @@ def _is_date_key(key: str) -> bool:
     return _DATE_KEY_RE.search(key) is not None
 
 
+def _is_date_value(value) -> bool:
+    """Return True if *value* is a scalar string convertible to a datetime."""
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        pd.to_datetime(value)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
 def extract_date_fields(data: Union[dict, str, None]) -> dict:
     """Extract every key that may indicate date/time information from *data*.
 
     Recursively walks the JSON structure (dicts and lists of dicts) and keeps
-    only the keys whose name contains ``'date'`` or ``'time'``
-    (case-insensitive), along with the structural parent keys needed to reach
-    them.
+    keys that either (a) have a name containing ``'date'``, ``'time'``, etc.
+    (case-insensitive), or (b) have a scalar string value that is convertible
+    to a datetime via ``pd.to_datetime``.  Structural parent keys needed to
+    reach matching keys are also preserved.
 
     When a matching key is found its value is preserved as-is (scalar, list,
     nested dict, etc.).  Non-matching keys are dropped unless they are
@@ -157,7 +171,7 @@ def extract_date_fields(data: Union[dict, str, None]) -> dict:
 def _extract_from_dict(d: dict) -> dict:
     result = {}
     for key, value in d.items():
-        if _is_date_key(key):
+        if _is_date_key(key) or _is_date_value(value):
             result[key] = value
         elif isinstance(value, dict):
             sub = _extract_from_dict(value)
