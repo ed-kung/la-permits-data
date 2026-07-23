@@ -20,6 +20,9 @@ MY_DATA_PATH = os.getenv("MY_DATA_PATH")
 RAW_DATA_PATH = os.getenv("RAW_DATA_PATH")
 DEWEY_PATH = os.path.join(RAW_DATA_PATH, "dewey-downloads", "building-permits-united-states")
 
+sys.path.append(os.path.join(ROOT_PATH, "scripts"))
+import data_utils as du
+
 SUMMARY_FILENAME = "dewey_summary"
 SUMMARY_FILEPATH = os.path.join(MY_DATA_PATH, f"{SUMMARY_FILENAME}.parquet")
 TOP_50_FILEPATH = os.path.join(MY_DATA_PATH, "raw_data", "top_50_us_cities.csv")
@@ -35,7 +38,6 @@ OUTPUT_FILEPATH = os.path.join(MY_DATA_PATH, "processed_data", "permits_top50_sa
 # %%
 # Load the data
 
-summ_df = pd.read_parquet(SUMMARY_FILEPATH)
 city_df = pd.read_csv(TOP_50_FILEPATH)
 city_df = city_df.rename(columns={'CITY': 'JURISDICTION'})
 
@@ -56,52 +58,15 @@ JURISDICTION_MAP['Louisville'] = 'Louisville-Jefferson County'
 JURISDICTION_MAP['Colorado Springs'] = 'El Paso County'
 
 # %%
-# Iterate over cities
+# Retrieve cities data
 
-dfs = []
+jurisdictions = [JURISDICTION_MAP[j] for j in city_df['JURISDICTION'].tolist()]
+states = city_df['STATE'].tolist()
 
-t0 = time.time()
-for idx, row in city_df.iterrows():
-    j = row['JURISDICTION']
-    jurisdiction = JURISDICTION_MAP[j]
-    state = row['STATE']
+df = du.get_data_for_jurisdictions(jurisdictions, states, columns=COLUMNS, n_records=TARGET_RECORDS_PER_CITY, rng=rng)
 
-    files = summ_df.loc[(summ_df['JURISDICTION'] == jurisdiction) & (summ_df['STATE'] == state), 'FILENAME'].tolist()
-
-    n_records = summ_df.loc[(summ_df['JURISDICTION'] == jurisdiction) & (summ_df['STATE'] == state), 'COUNT'].sum()
-    if n_records == 0:
-        continue
-    
-    frac = TARGET_RECORDS_PER_CITY / n_records
-
-    mydfs = []
-    for jdx, f in enumerate(files):
-        dt = time.time() - t0
-        print(f"\rProcessing {j} {state} ({idx + 1}/{len(city_df)}) ... {jdx + 1}/{len(files)} files ... elapsed time {dt:.2f} seconds              ", end="", flush=True)
-
-        temp_df = pd.read_parquet(os.path.join(DEWEY_PATH, f), columns=COLUMNS)
-        temp_df = temp_df.loc[(temp_df['JURISDICTION'] == jurisdiction) & (temp_df['STATE'] == state)]
-        temp_df = temp_df.sample(frac=frac, random_state=rng)
-
-        mydfs.append(temp_df)
-    mydf = pd.concat(mydfs)
-
-    if len(mydf) == 0:
-        continue
-    
-    mydf = mydf.sample(n=min(2000, len(mydf)), random_state=rng).reset_index(drop=True)
-    dfs.append(mydf)
-
-df = pd.concat(dfs)
 print("\nDone!\n")
 print(df["JURISDICTION"].value_counts())
-
-# %%
-# Clean date fields
-df['FILE_DATE'] = pd.to_datetime(df['FILE_DATE'], errors='coerce')
-df['PERMIT_DATE'] = pd.to_datetime(df['PERMIT_DATE'], errors='coerce')
-df['FINAL_DATE'] = pd.to_datetime(df['FINAL_DATE'], errors='coerce')
-df['PERMIT_OR_FILE_DATE'] = df['PERMIT_DATE'].fillna(df['FILE_DATE'])
 
 # %%
 # Save data
