@@ -1,8 +1,9 @@
 """Shared utilities for working with the permits dataset."""
 
 import json
+import math
 import re
-from typing import Union
+from typing import Optional, Union
 
 
 # -- Schema detection ---------------------------------------------------------
@@ -28,18 +29,29 @@ ENERGOV_SIGNATURE = frozenset(
 )
 
 
-def detect_schema(data: Union[dict, str]) -> str:
+def _is_missing(data) -> bool:
+    """Return True for None / NaN (e.g. missing parquet DATA cells)."""
+    if data is None:
+        return True
+    if isinstance(data, float) and math.isnan(data):
+        return True
+    return False
+
+
+def detect_schema(data: Union[dict, str, None]) -> Optional[str]:
     """Classify a permit record's DATA JSON by platform schema.
 
     Parameters
     ----------
-    data : dict or str
+    data : dict, str, or None
         Either a parsed JSON dict or a raw JSON string from the DATA column.
+        Missing values (``None`` / NaN) return ``None``.
 
     Returns
     -------
-    str
-        One of ``'accela'``, ``'energov'``, or ``'custom'``.
+    str or None
+        One of ``'accela'``, ``'energov'``, or ``'custom'``, or ``None`` when
+        *data* is missing.
 
     Raises
     ------
@@ -57,7 +69,12 @@ def detect_schema(data: Union[dict, str]) -> str:
     'energov'
     >>> detect_schema({"filings": [], "issuances": []})
     'custom'
+    >>> detect_schema(None) is None
+    True
     """
+    if _is_missing(data):
+        return None
+
     if isinstance(data, str):
         data = json.loads(data)
 
@@ -85,7 +102,7 @@ def _is_date_key(key: str) -> bool:
     return _DATE_KEY_RE.search(key) is not None
 
 
-def extract_date_fields(data: Union[dict, str]) -> dict:
+def extract_date_fields(data: Union[dict, str, None]) -> dict:
     """Extract every key that may indicate date/time information from *data*.
 
     Recursively walks the JSON structure (dicts and lists of dicts) and keeps
@@ -99,15 +116,16 @@ def extract_date_fields(data: Union[dict, str]) -> dict:
 
     Parameters
     ----------
-    data : dict or str
-        Either a parsed JSON dict or a raw JSON string.
+    data : dict, str, or None
+        Either a parsed JSON dict or a raw JSON string.  Missing values
+        (``None`` / NaN) return ``{}``.
 
     Returns
     -------
     dict
         A pruned copy of *data* containing only date/time keys and the
         structural keys needed to reach them.  Returns ``{}`` if no
-        date/time keys are found.
+        date/time keys are found, or if *data* is missing.
 
     Examples
     --------
@@ -121,7 +139,12 @@ def extract_date_fields(data: Union[dict, str]) -> dict:
     ...     "contacts": [{"name": "Jane"}],
     ... })
     {'filing_date': '2024-01-15', 'details': {'issue_date': '2024-02-01'}}
+    >>> extract_date_fields(None)
+    {}
     """
+    if _is_missing(data):
+        return {}
+
     if isinstance(data, str):
         data = json.loads(data)
 
