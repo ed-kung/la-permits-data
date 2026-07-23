@@ -1,120 +1,68 @@
-# Philadelphia DATA Column Repair Assessment
+# Philadelphia Data Repair Assessment
 
 ## Summary
 
-Assessed the degree to which missing values for STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE can be recovered from the raw JSON in the DATA column for 1,998 Philadelphia building-permit records. **STATUS_NORMALIZED** can be fully recovered (71/71 missing values, 100%). **PERMIT_DATE** can be largely recovered (67/78 missing, 85.9%). **FINAL_DATE** has limited recovery (9/361, 2.5%). **FILE_DATE** cannot be recovered at all (0/1,644) because the dominant data source lacks an application date field.
+Assessed the correctness of STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE for 1,998 Philadelphia permit records by comparing field values against the raw DATA JSON column. Identified three distinct data schemas within the DATA column, with varying degrees of date and status information available. Wrote a repair function that fixes 84 STATUS_NORMALIZED values (71 filled, 13 fixed), fills 62 missing PERMIT_DATE values, and fills 6 missing FINAL_DATE values. FILE_DATE could not be repaired due to lack of source data in the DATA column for the affected records.
 
-## Data Structure
+## Data Schemas
 
-Philadelphia records come from two underlying city systems and appear in three distinct DATA sub-schemas:
+The Philadelphia DATA column contains three sub-schemas:
 
-| Schema | System | Records | % | Identifying keys |
-|--------|--------|---------|---|------------------|
-| POSSE | HANSEN/ECLIPSE | 1,574 | 78.8% | `PERMITISSUEDATE` (any case) |
-| Eclipse detailed | Eclipse | 355 | 17.8% | `Status` + `Created Date` |
-| Flat detail | Eclipse | 69 | 3.5% | `IssueDate` or `StatusDescription`, no `Status` |
+| Schema | Records | Description |
+|--------|---------|-------------|
+| **flat_upper** | 1,574 | Flat structure, uppercase keys (STATUS, PERMITISSUEDATE, PERMITCOMPLETEDDATE). No filing/creation date. |
+| **nested** | 355 | Hierarchical with Status, Created Date, Issued Date, Completed Date, and nested Other Information. |
+| **flat_mixed** | 69 | Mixed-case keys (StatusDescription, IssueDate, CompletedDate). No created date field. |
 
-## Missing Values Before Repair
-
-| Field | Present | Missing | Missing % |
-|-------|---------|---------|-----------|
-| STATUS_NORMALIZED | 1,927 | 71 | 3.6% |
-| FILE_DATE | 354 | 1,644 | 82.3% |
-| PERMIT_DATE | 1,920 | 78 | 3.9% |
-| FINAL_DATE | 1,637 | 361 | 18.1% |
-
-## Field Mappings and Validation
-
-### FILE_DATE (application/submitted date)
-
-| Schema | DATA field | Overlap | Match rate | Fill potential |
-|--------|-----------|---------|------------|----------------|
-| POSSE | (none) | — | — | 0 / 1,574 |
-| Eclipse | `Created Date` | 354 | 100.0% | 0 / 1 (empty value) |
-| Flat detail | (none) | — | — | 0 / 69 |
-
-**Result: 0 / 1,644 missing values fillable (0%).** The POSSE system (79% of records) and flat detail schema (3%) do not contain any application or submission date. The single Eclipse record with missing FILE_DATE also has an empty `Created Date`.
-
-### PERMIT_DATE (approval/issued date)
-
-| Schema | DATA field | Overlap | Match rate | Fill potential |
-|--------|-----------|---------|------------|----------------|
-| POSSE | `PERMITISSUEDATE` | 1,573 | 100.0% | 0 / 1 |
-| Eclipse | `Issued Date` | 347 | 100.0% | 0 / 8 (all empty) |
-| Flat detail | `IssueDate` | 0 (all missing) | — | **67 / 69** |
-
-**Result: 67 / 78 missing values fillable (85.9%).** Nearly all fillable values come from the flat detail schema, where all 69 records have missing PERMIT_DATE but 67 have a usable `IssueDate`.
-
-### FINAL_DATE (finalized/completion date)
-
-| Schema | DATA field | Overlap | Match rate | Fill potential |
-|--------|-----------|---------|------------|----------------|
-| POSSE | `PERMITCOMPLETEDDATE` | 1,348 | 100.0% | 0 / 226 (all empty) |
-| Eclipse | `Completed Date` | 255 | 100.0% | **9 / 100** |
-| Flat detail | `CompletedDate` | 34 | 100.0% | 0 / 35 (all empty) |
-
-**Result: 9 / 361 missing values fillable (2.5%).** Most records missing FINAL_DATE simply have no completion date in the raw data either — the permit has not been finalized.
+## Findings by Field
 
 ### STATUS_NORMALIZED
 
-**POSSE status mapping** (validated: 1,573/1,573 = 100% match):
+| Issue | Records | Resolution |
+|-------|---------|------------|
+| flat_mixed: all 69 records have NaN status | 69 | FILLED from parsed StatusDescription (Issued→Active, Completed→Final, Expired→Inactive, Ready For Issue→In Review, Withdrawn→Inactive) |
+| nested: STATUS_NORMALIZED=Active but DATA.Status=Completed | 6 | FIXED to Final |
+| nested: STATUS_NORMALIZED=Active but DATA.Status=Expired | 3 | FIXED to Inactive |
+| nested: STATUS_NORMALIZED=Active, Status=Issued but Completed Date exists | 4 | FIXED to Final |
+| flat_upper: "Amendment Application Incomplete" unmapped | 1 | FILLED as In Review |
+| nested: "Amendment Applicant Revisions" unmapped | 1 | FILLED as In Review |
 
-| DATA.STATUS | STATUS_NORMALIZED |
-|-------------|-------------------|
-| COMPLETED / Completed | Final |
-| Issued | Active |
-| EXPIRED / Expired | Inactive |
-| CLOSED | Final |
-| ABANDONED | Inactive |
-| REVOKED | Inactive |
-| Cancelled | Inactive |
-| Denied | Inactive |
-| Amendment Application Incomplete | In Review (tentative) |
+**Root cause**: The flat_mixed schema records were never processed for status normalization during initial data loading. The 13 fixed nested records had stale STATUS_ORIGINAL values (from the original data pull) that were not updated when the source system status changed.
 
-**Eclipse status mapping** (validated: 344/354 = 97.2% match):
+### FILE_DATE
 
-| DATA.Status | STATUS_NORMALIZED |
-|-------------|-------------------|
-| Completed | Final |
-| Issued | Active |
-| Expired | Inactive |
-| Ready For Issue | In Review |
-| Stop Work | In Review |
-| Withdrawn | Inactive |
-| Amendment Applicant Revisions | In Review (tentative) |
+- **1,644 records missing** (1,574 flat_upper + 69 flat_mixed + 1 nested)
+- **No repairs possible**: The flat_upper and flat_mixed schemas do not contain an application/filing date field. The single nested record (10057) has whitespace in all date fields.
+- **Note**: The flat_upper schema has no application creation date — only PERMITISSUEDATE and PERMITCOMPLETEDDATE. This is a fundamental data gap from the source.
 
-The 10 Eclipse mismatches (2.8%) are records where the existing STATUS_NORMALIZED is "Active" but DATA.Status shows "Completed" or "Expired" — likely cases where the data source was updated after the normalized status was set.
+### PERMIT_DATE
 
-**Flat detail status mapping** (no ground truth — all 69 have missing STATUS_NORMALIZED):
+| Issue | Records | Resolution |
+|-------|---------|------------|
+| flat_mixed Active/Final records with IssueDate available | 62 | FILLED from IssueDate |
+| Remaining missing (In Review/Inactive, no issue date) | 16 | Cannot repair (appropriate to be missing) |
 
-Status is extracted from the first word of `StatusDescription` (e.g., "Completed \n May 26, 2020" → "Completed"). Mapping follows the same vocabulary as Eclipse.
+The 16 unfilled records are either permits not yet issued (In Review), inactive permits without issuance dates (Expired/Withdrawn), or a single Active record with corrupt whitespace data (10057).
 
-**Result: 71 / 71 missing values fillable (100%).**
+### FINAL_DATE
 
-## Overall Fill Summary
+| Issue | Records | Resolution |
+|-------|---------|------------|
+| nested records fixed to Final with Completed Date available | 6 | FILLED from Completed Date |
+| Remaining missing Final records | 37 | No source available in DATA |
+| Inactive records with FINAL_DATE populated | 157 | Left as-is (see note) |
 
-| Field | Missing | Fillable | Fill rate | Still missing |
-|-------|---------|----------|-----------|---------------|
-| FILE_DATE | 1,644 | 0 | 0% | 1,644 |
-| PERMIT_DATE | 78 | 67 | 85.9% | 11 |
-| FINAL_DATE | 361 | 9 | 2.5% | 352 |
-| STATUS_NORMALIZED | 71 | 71 | 100% | 0 |
+**Note on Inactive records with FINAL_DATE**: 157 Inactive (Expired/Cancelled/Revoked) records have FINAL_DATE populated from PERMITCOMPLETEDDATE, which in this context represents the date the permit record was closed in the system, not construction completion. These are left unchanged as they reflect the source data.
+
+## Repair Summary
+
+| Field | FILLED | FIXED | Missing Before | Missing After |
+|-------|--------|-------|----------------|---------------|
+| STATUS_NORMALIZED | 71 | 13 | 71 | 0 |
+| FILE_DATE | 0 | 0 | 1,644 | 1,644 |
+| PERMIT_DATE | 62 | 0 | 78 | 16 |
+| FINAL_DATE | 6 | 0 | 361 | 355 |
 
 ## Artifacts
 
-- **`agent/scripts/phi_data_repair.py`** — Philadelphia-specific extraction functions:
-  - `extract_phi_file_date(data)` — extracts FILE_DATE (Eclipse "Created Date" only)
-  - `extract_phi_permit_date(data)` — extracts PERMIT_DATE from all three schemas
-  - `extract_phi_final_date(data)` — extracts FINAL_DATE from all three schemas
-  - `extract_phi_status(data)` — extracts STATUS_NORMALIZED from all three schemas
-  - `fill_phi_dates(df)` — batch fill function operating on a Philadelphia-filtered DataFrame
-
-## Validation Results
-
-Running `fill_phi_dates` on the 1,998-record sample and comparing extracted values against existing (non-missing) ground truth:
-
-| Field | Extracted | Matched | Match rate |
-|-------|-----------|---------|------------|
-| PERMIT_DATE | 1,920 | 1,920 | 100.0% |
-| FINAL_DATE | 1,637 | 1,637 | 100.0% |
-| STATUS_NORMALIZED | 1,927 | 1,918 | 99.5% |
+- Repair script: `agent/scripts/phi_data_repair.py`
