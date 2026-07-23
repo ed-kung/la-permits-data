@@ -1,6 +1,7 @@
 """Shared utilities for working with the permits dataset."""
 
 import json
+import re
 from typing import Union
 
 
@@ -72,3 +73,92 @@ def detect_schema(data: Union[dict, str]) -> str:
         return "energov"
 
     return "custom"
+
+
+# -- Date field extraction ----------------------------------------------------
+
+_DATE_KEY_RE = re.compile(r"date|time", re.IGNORECASE)
+
+
+def _is_date_key(key: str) -> bool:
+    """Return True if *key* looks like it could hold date/time information."""
+    return _DATE_KEY_RE.search(key) is not None
+
+
+def extract_date_fields(data: Union[dict, str]) -> dict:
+    """Extract every key that may indicate date/time information from *data*.
+
+    Recursively walks the JSON structure (dicts and lists of dicts) and keeps
+    only the keys whose name contains ``'date'`` or ``'time'``
+    (case-insensitive), along with the structural parent keys needed to reach
+    them.
+
+    When a matching key is found its value is preserved as-is (scalar, list,
+    nested dict, etc.).  Non-matching keys are dropped unless they are
+    ancestors of a matching key.
+
+    Parameters
+    ----------
+    data : dict or str
+        Either a parsed JSON dict or a raw JSON string.
+
+    Returns
+    -------
+    dict
+        A pruned copy of *data* containing only date/time keys and the
+        structural keys needed to reach them.  Returns ``{}`` if no
+        date/time keys are found.
+
+    Examples
+    --------
+    >>> extract_date_fields({
+    ...     "name": "John",
+    ...     "filing_date": "2024-01-15",
+    ...     "details": {
+    ...         "color": "blue",
+    ...         "issue_date": "2024-02-01",
+    ...     },
+    ...     "contacts": [{"name": "Jane"}],
+    ... })
+    {'filing_date': '2024-01-15', 'details': {'issue_date': '2024-02-01'}}
+    """
+    if isinstance(data, str):
+        data = json.loads(data)
+
+    if not isinstance(data, dict):
+        raise ValueError(f"Expected a JSON object (dict), got {type(data).__name__}")
+
+    return _extract_from_dict(data)
+
+
+def _extract_from_dict(d: dict) -> dict:
+    result = {}
+    for key, value in d.items():
+        if _is_date_key(key):
+            result[key] = value
+        elif isinstance(value, dict):
+            sub = _extract_from_dict(value)
+            if sub:
+                result[key] = sub
+        elif isinstance(value, list):
+            sub_list = _extract_from_list(value)
+            if sub_list:
+                result[key] = sub_list
+    return result
+
+
+def _extract_from_list(lst: list) -> list:
+    result = []
+    found_any = False
+    for item in lst:
+        if isinstance(item, dict):
+            sub = _extract_from_dict(item)
+            if sub:
+                result.append(sub)
+                found_any = True
+        elif isinstance(item, list):
+            sub_list = _extract_from_list(item)
+            if sub_list:
+                result.append(sub_list)
+                found_any = True
+    return result if found_any else []
