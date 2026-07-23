@@ -173,7 +173,8 @@ def extract_ny_permit_date(data: Union[dict, str, None]) -> Optional[str]:
       2. permits[Initial Permit].approved_date      (DOB filing+permits schema)
       3. permit_issued_date                         (Electrical permits schema)
       4. filing.permit_issue_date                   (DOB filing+permits fallback)
-      5. issuances[INITIAL earliest].issuance_date  (fallback)
+      5. filing.current_status_date                 (when filing_status indicates approval)
+      6. issuances[INITIAL earliest].issuance_date  (fallback)
 
     Returns the raw date string if found, or None.
     """
@@ -227,6 +228,16 @@ def extract_ny_permit_date(data: Union[dict, str, None]) -> Optional[str]:
                     return permit["issued_date"]
                 break
 
+    # Sub-schema B fallback: filing.current_status_date when filing_status
+    # indicates approval.  Covers records where the permit was approved but
+    # no explicit permit_issue_date or permits[] entry exists yet.
+    if "filing" in d and isinstance(d["filing"], dict):
+        filing_status = d["filing"].get("filing_status", "")
+        if filing_status in _NY_APPROVAL_STATUSES:
+            val = d["filing"].get("current_status_date")
+            if _try_parse_date(val) is not None:
+                return val
+
     # Fallback: earliest INITIAL issuance issuance_date
     if "issuances" in d and isinstance(d["issuances"], list):
         val = _earliest_initial_issuance(d["issuances"], "issuance_date")
@@ -235,6 +246,14 @@ def extract_ny_permit_date(data: Union[dict, str, None]) -> Optional[str]:
 
     return None
 
+
+# Filing statuses in the filing+permits sub-schema (B) that indicate the
+# permit has been approved / issued (used for PERMIT_DATE inference).
+_NY_APPROVAL_STATUSES = frozenset({
+    "Approved",
+    "PAA Approved",
+    "Permit Issued",
+})
 
 # Filing statuses in the filing+permits sub-schema (B) that indicate the
 # permit has reached a final/completed state.  "LOC" = Letter of Completion.
