@@ -34,7 +34,7 @@ def get_data_for_jurisdiction(jurisdiction, state, columns=None, n_records=None,
     if n_records is None:
         frac = 1.0
     else:
-        frac = n_records / total_records
+        frac = min(1.0, n_records / total_records)
 
     t0 = time.time()
     dfs = []
@@ -63,6 +63,7 @@ def get_data_for_jurisdictions(jurisdictions, states, columns=None, n_records=No
         if verbose:
             dt = time.time() - t0
             print(f"{i+1}/{len(jurisdictions)} retrieved ... elapsed time: {dt:.2f} seconds")
+        i+=1
     if verbose:
         print("")
     return pd.concat(dfs).reset_index(drop=True)
