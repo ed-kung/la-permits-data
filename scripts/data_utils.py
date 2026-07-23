@@ -104,9 +104,19 @@ def _is_date_key(key: str) -> bool:
     return _DATE_KEY_RE.search(key) is not None
 
 
+_DATE_SEPARATOR_RE = re.compile(r"[\-/\s]")
+
+
 def _is_date_value(value) -> bool:
-    """Return True if *value* is a scalar string convertible to a datetime."""
+    """Return True if *value* is a scalar string convertible to a datetime.
+
+    To avoid false positives on purely numeric strings (e.g. "0010", "42"),
+    the value must contain at least one typical date separator (hyphen, slash,
+    or whitespace) before parsing is attempted.
+    """
     if not isinstance(value, str) or not value.strip():
+        return False
+    if not _DATE_SEPARATOR_RE.search(value):
         return False
     try:
         pd.to_datetime(value)
