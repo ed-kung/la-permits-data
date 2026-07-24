@@ -26,9 +26,11 @@ The 3 records where STATUS_ORIGINAL diverges from the DATA column's Permit Statu
 
 10 records are missing FILE_DATE. In all 10 cases, the DATA column's `Applied Date` is also empty, so no fills are possible from DATA. The remaining 1,991 records have FILE_DATE correctly populated and consistent with `Applied Date`.
 
-### PERMIT_DATE (0 repairs)
+### PERMIT_DATE (113 repairs: 113 FILLED)
 
-888 records are missing PERMIT_DATE. For all records where PERMIT_DATE is missing, the DATA column's `Issue Date` is also empty — no fills are possible from DATA. Where both exist (1,112 records), the values are consistent with zero mismatches. After the STATUS_NORMALIZED fix, 113 records in the "Final" group (mostly former "Admin Completed" / "Building Administration" permits) remain without PERMIT_DATE, as these permit types do not have a meaningful issuance step.
+888 records are missing PERMIT_DATE. For all records where PERMIT_DATE is missing, the DATA column's `Issue Date` is also empty — no fills are possible from `Issue Date` alone. Where both exist (1,112 records), the values are consistent with zero mismatches.
+
+For **Building Administration** (74 fills) and **Code Enforcement** (39 fills) permit types, filing and issuance are the same event: when both FILE_DATE and PERMIT_DATE are populated, they are always equal (100% match rate, 5/5 and 1/1 respectively). For Active/Final records of these types with missing PERMIT_DATE, the repair fills PERMIT_DATE = FILE_DATE. This brings "Final" PERMIT_DATE coverage from 75.4% to 99.6%.
 
 ### FINAL_DATE (1 repair: 1 FILLED)
 
@@ -42,7 +44,7 @@ The remaining 1 missing FINAL_DATE among "Final" records is a "Closed" permit wi
 |---|---|---|
 | STATUS_NORMALIZED | all | 2,001 / 2,001 (100%) |
 | FILE_DATE | all | 1,991 / 2,001 (99.5%) |
-| PERMIT_DATE | Active + Final | 516 / 688 (75.0%) |
+| PERMIT_DATE | Active + Final | 629 / 688 (91.4%) |
 | FINAL_DATE | Final | 459 / 460 (99.8%) |
 
 ## Artifacts

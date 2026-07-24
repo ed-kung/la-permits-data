@@ -34,7 +34,11 @@ Issues found:
 
     PERMIT_DATE
     -  No records where PERMIT_DATE is missing but Issue Date is present
-       in DATA (unfillable from DATA alone).
+       in DATA (unfillable from Issue Date alone).
+    -  For "Building Administration" and "Code Enforcement" permit types,
+       filing and issuance are the same event (100% FILE_DATE == PERMIT_DATE
+       when both exist).  PERMIT_DATE is filled from FILE_DATE for
+       Active/Final records of these types (113 fills).
 
     FINAL_DATE
     -  1 record (the "issued"→"Final" mismatch above) has Completed in
@@ -123,11 +127,21 @@ _STATUS_MAP = {
 }
 
 
+# Permit types where filing and issuance are the same event.
+# When both FILE_DATE and PERMIT_DATE are populated for these types they
+# are always equal (100% match rate), so FILE_DATE is a reliable proxy.
+_SAME_DAY_PERMIT_TYPES = frozenset({
+    "Building Administration",
+    "Code Enforcement",
+})
+
+
 # ── Per-record repair logic ─────────────────────────────────────────────────
 
 def _repair_record(row, d: dict, repairs: dict):
     """Repair a single Burbank record."""
     permit_status = d.get("Permit Status", "").strip()
+    permit_type = d.get("Permit Type", "").strip()
     current_status = row["STATUS_NORMALIZED"]
 
     # -- STATUS_NORMALIZED --
@@ -155,6 +169,13 @@ def _repair_record(row, d: dict, repairs: dict):
         if issue is not pd.NaT:
             repairs["PERMIT_DATE"] = issue
             repairs["PERMIT_DATE_FLAG"] = "FILLED"
+
+        if "PERMIT_DATE" not in repairs and permit_type in _SAME_DAY_PERMIT_TYPES:
+            file_date = repairs.get("FILE_DATE", row["FILE_DATE"])
+            fd = _safe_to_datetime(file_date)
+            if fd is not pd.NaT:
+                repairs["PERMIT_DATE"] = fd
+                repairs["PERMIT_DATE_FLAG"] = "FILLED"
 
     # -- FINAL_DATE --
     if pd.isna(row["FINAL_DATE"]) and effective_status == "Final":
