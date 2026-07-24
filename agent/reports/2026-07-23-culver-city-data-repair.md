@@ -71,6 +71,17 @@ After repair: **960 still missing** (586 Final records without source data).
 | PERMIT_DATE | 279 | 5 | 1,106 |
 | FINAL_DATE | 267 | 0 | 960 |
 
+## Two Data Feeds and Potential Duplicates
+
+The two schemas (tasks and flat) appear to originate from two separate upstream feeds that the third-party data vendor ingests from Culver City and merges without deduplication:
+
+- The **flat schema** likely comes from a bulk open-data export or API (Accela/Energov-style summary records with fields like `RecordStatus`, `DateOpened`, `StatusDate`).
+- The **tasks schema** likely comes from per-record detail page scrapes of the city's public permit portal (rich workflow events, named reviewers, HTML fragments).
+
+The two feeds are **not bifurcated by date or permit type**. For Electrical, Mechanical, Plumbing, and Demo permits, both schemas coexist across the same years (2000–2025). "Build" (flat) and "Building" (tasks) are the same permit category under different labels from the two sources. Pre-2000 records appear only in the flat schema, likely because older records lack detail pages or weren't targeted by the portal scrape.
+
+**Duplicate records exist.** In the 2,000-record sample, 7 cross-schema duplicate pairs were identified by matching on (STREET, FILE_DATE, RECORD_TYPE). All 7 pairs have identical statuses and matching FINAL_DATE values where available. PERMIT_DATE coverage is complementary — the tasks record typically has it while the flat record does not, or vice versa. Given that the probability of sampling both halves of a duplicate pair is low (~(2000/N)^2 per pair), the actual number of duplicates in the full dataset is likely substantially higher. This should be investigated and addressed at the full-data level.
+
 ## Artifacts
 
 - Repair script: `agent/scripts/culver_city_data_repair.py`
