@@ -68,6 +68,15 @@ def _safe_to_date(val):
     return dt.date()
 
 
+def _classify_schema(data_dict: Optional[dict]) -> str:
+    if data_dict is None:
+        return "missing"
+    keys = set(data_dict.keys())
+    if "My Project" in keys or "Build Status" in keys:
+        return "standard"
+    return "unknown"
+
+
 # ── Status mapping ───────────────────────────────────────────────────────────
 
 _BUILD_STATUS_MAP = {
@@ -183,10 +192,12 @@ def data_repair(df: pd.DataFrame) -> pd.DataFrame:
     Returns
     -------
     pd.DataFrame
-        Copy of *df* with corrected field values and new flag columns:
-        STATUS_NORMALIZED_FLAG, FILE_DATE_FLAG, PERMIT_DATE_FLAG,
-        FINAL_DATE_FLAG.  Flag values are "FILLED" (was missing, now
-        populated) or "FIXED" (had an incorrect value, now corrected).
+        Copy of *df* with corrected field values, an INFERRED_SCHEMA column
+        naming the DATA JSON schema identified for each record, and new
+        flag columns: STATUS_NORMALIZED_FLAG, FILE_DATE_FLAG,
+        PERMIT_DATE_FLAG, FINAL_DATE_FLAG.  Flag values are "FILLED"
+        (was missing, now populated) or "FIXED" (had an incorrect value,
+        now corrected).
     """
     out = df.copy()
 
@@ -198,10 +209,13 @@ def data_repair(df: pd.DataFrame) -> pd.DataFrame:
     ]
     for col in flag_cols:
         out[col] = pd.Series(np.nan, index=out.index, dtype=object)
+    out["INFERRED_SCHEMA"] = pd.Series(np.nan, index=out.index, dtype=object)
 
     for idx in out.index:
         row = out.loc[idx]
         d = _safe_parse(row["DATA"])
+        schema = _classify_schema(d)
+        out.at[idx, "INFERRED_SCHEMA"] = schema
         if d is None:
             continue
 
