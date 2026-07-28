@@ -1,0 +1,13 @@
+Load `MY_DATA_PATH/processed_data/permits_ca_sample.parquet`. Go down the list of (JURISDICTION, STATE) pairs. Find the first one for which a data repair script does not exist (look in agent/scripts for {state}/data_repair_{state}_{city}.py).
+
+For that jurisdiction, your goal is to assess the correctness of the following fields: STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE, using information found in the DATA column, which is a raw JSON provided from the issuing agency.
+
+Starting with STATUS_NORMALIZED, then moving on to FILE_DATE, PERMIT_DATE, and FINAL_DATE, assess the correctness of each of the fields. In particular, note if the field contains a missing value and whether that missing value can be filled in. If any of the records have an incorrect or incorrectly missing value for a field, investigate the reason.
+
+Once you have an understanding of why some records are incorrect, report on your findings, and within your own workspace, write a proposed function to repair the incorrect fields. You should overwrite the incorrect fields. For each field, create a {FIELD}_FLAG column with "FILLED" or "FIXED" depending on whether a missing value was filled in or whether an incorrect value was fixed.  Also create a field called INFERRED_SCHEMA, which is a string containing the inferred schema for each record, since DATA may use different schemas within the same city. 
+
+The function should be called `data_repair` and should be contained in `agent/scripts/{state}/data_repair_{state}_{city}.py`. You may reference `agent/scripts/ny/data_repair_ny_ny.py` for conventions.
+
+Note that the possible values for STATUS_NORMALIZED are 'Active', 'Final', 'In Review', and 'Inactive'. Ideally, FILE_DATE, which is the permit application or submittal date, should be populated for all records. PERMIT_DATE, which is the permit approval or issuance date, should be populated for 'Active' and 'Final' records. FINAL_DATE, which is the permit finaled, completion, or signoff date, should be populated for 'Final' records. 
+
+When you are done, produce a report in agent/reports describing your findings and the performance of the data repair script.
