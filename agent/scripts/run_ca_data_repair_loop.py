@@ -4,6 +4,9 @@
 Each iteration uses a new Agent (clear context) with the fixed prompt in
 prompts/ca_data_repair_next.txt. Requires CURSOR_API_KEY.
 
+After each finished agent run, stages new/changed repair scripts and reports
+with `git add` (does not commit).
+
 Usage:
   export CURSOR_API_KEY=cursor_...
   .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 1
@@ -15,6 +18,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -24,6 +28,13 @@ from dotenv import load_dotenv
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "ca_data_repair_next.txt"
 SCRIPTS_ROOT = Path(__file__).resolve().parent
+
+# Pathspecs for artifacts agents create; never commit from this script.
+ARTIFACT_PATHSPECS = (
+    ":(glob)agent/scripts/**/data_repair_*.py",
+    ":(glob)agent/scripts/data_repair_*.py",
+    ":(glob)agent/reports/*.md",
+)
 
 
 def jurisdiction_to_slug(name: str) -> str:
@@ -52,6 +63,54 @@ def first_missing_jurisdiction(
         if not script_path_for(state, jurisdiction).exists():
             return jurisdiction, state
     return None
+
+
+def _paths_needing_stage(pathspecs: tuple[str, ...] | list[str]) -> list[str]:
+    """Repo-relative paths under pathspecs that are untracked or have unstaged changes."""
+    proc = subprocess.run(
+        ["git", "status", "--porcelain", "--", *pathspecs],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return []
+    paths: list[str] = []
+    for line in proc.stdout.splitlines():
+        if len(line) < 4:
+            continue
+        xy, rest = line[:2], line[3:]
+        path = rest.split(" -> ", 1)[-1] if " -> " in rest else rest
+        # Untracked, or worktree column dirty (needs git add).
+        if xy == "??" or (len(xy) > 1 and xy[1] != " "):
+            paths.append(path)
+    return paths
+
+
+def stage_repair_artifacts() -> list[str]:
+    """`git add` repair scripts and reports; do not commit. Returns staged paths."""
+    candidates = _paths_needing_stage(ARTIFACT_PATHSPECS)
+    if not candidates:
+        print("git: no new repair scripts/reports to stage")
+        return []
+
+    proc = subprocess.run(
+        ["git", "add", "--", *ARTIFACT_PATHSPECS],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "").strip()
+        print(f"git add failed: {err}", file=sys.stderr)
+        return []
+
+    print(f"git: staged {len(candidates)} path(s) (no commit):")
+    for path in candidates:
+        print(f"  {path}")
+    return candidates
 
 
 def parse_args() -> argparse.Namespace:
@@ -216,6 +275,8 @@ def main() -> int:
         status = getattr(result, "status", None)
         print(f"status={status} elapsed_s={elapsed:.1f}")
 
+        staged = stage_repair_artifacts()
+
         summaries.append(
             {
                 "run": i,
@@ -223,6 +284,7 @@ def main() -> int:
                 "elapsed_s": elapsed,
                 "run_id": run_id,
                 "agent_id": agent_id,
+                "staged": staged,
             }
         )
 
@@ -249,6 +311,9 @@ def _print_summary(summaries: list[dict]) -> None:
             f"elapsed_s={row['elapsed_s']:.1f} "
             f"agent_id={row.get('agent_id')} run_id={row.get('run_id')}"
         )
+        staged = row.get("staged") or []
+        if staged:
+            print(f"  staged={len(staged)}: {', '.join(staged)}")
 
 
 if __name__ == "__main__":
