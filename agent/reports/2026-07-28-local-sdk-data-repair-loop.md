@@ -34,7 +34,7 @@ export CURSOR_API_KEY=cursor_...
 .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 5
 ```
 
-Optional: `--model cursor-grok-4.5-high` (default: Cursor Grok 4.5 High) or `CURSOR_MODEL`; `--skip-exhaustion-check` to always send the prompt even if the orchestrator thinks the queue is empty.
+Optional: `--model grok-4.5` (default: Cursor Grok 4.5) or `CURSOR_MODEL`; `--skip-exhaustion-check` to always send the prompt even if the orchestrator thinks the queue is empty.
 
 Keep the machine awake while the loop runs (local agents stop if the laptop sleeps).
 

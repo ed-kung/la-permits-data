@@ -7,7 +7,7 @@ prompts/ca_data_repair_next.txt. Requires CURSOR_API_KEY.
 Usage:
   export CURSOR_API_KEY=cursor_...
   .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 1
-  .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 5 --model cursor-grok-4.5-high
+  .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 5 --model grok-4.5
 """
 
 from __future__ import annotations
@@ -66,8 +66,8 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--model",
-        default=os.environ.get("CURSOR_MODEL", "cursor-grok-4.5-high"),
-        help="Model id (default: cursor-grok-4.5-high / Cursor Grok 4.5 High, or CURSOR_MODEL).",
+        default=os.environ.get("CURSOR_MODEL", "grok-4.5"),
+        help="Model id (default: grok-4.5 / Cursor Grok 4.5, or CURSOR_MODEL).",
     )
     p.add_argument(
         "--prompt-file",
