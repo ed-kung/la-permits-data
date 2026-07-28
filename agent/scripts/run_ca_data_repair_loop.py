@@ -2,7 +2,8 @@
 """Sequentially launch fresh local Cursor agents for CA data-repair work.
 
 Each iteration uses a new Agent (clear context) with the fixed prompt in
-prompts/ca_data_repair_next.txt. Requires CURSOR_API_KEY.
+prompts/ca_data_repair_next.txt. The agent chooses the next jurisdiction.
+Requires CURSOR_API_KEY.
 
 After each finished agent run, stages new/changed repair scripts and reports
 with `git add` (does not commit).
@@ -17,7 +18,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import subprocess
 import sys
 import time
@@ -27,7 +27,6 @@ from dotenv import load_dotenv
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "ca_data_repair_next.txt"
-SCRIPTS_ROOT = Path(__file__).resolve().parent
 
 # Pathspecs for artifacts agents create; never commit from this script.
 ARTIFACT_PATHSPECS = (
@@ -35,34 +34,6 @@ ARTIFACT_PATHSPECS = (
     ":(glob)agent/scripts/data_repair_*.py",
     ":(glob)agent/reports/*.md",
 )
-
-
-def jurisdiction_to_slug(name: str) -> str:
-    slug = name.strip().lower()
-    slug = re.sub(r"[^a-z0-9]+", "_", slug)
-    return slug.strip("_")
-
-
-def script_path_for(state: str, jurisdiction: str) -> Path:
-    state_l = state.strip().lower()
-    city = jurisdiction_to_slug(jurisdiction)
-    return SCRIPTS_ROOT / state_l / f"data_repair_{state_l}_{city}.py"
-
-
-def first_missing_jurisdiction(
-    parquet_path: Path,
-) -> tuple[str, str] | None:
-    """Return first (JURISDICTION, STATE) without a repair script, in parquet order."""
-    import pandas as pd
-
-    df = pd.read_parquet(parquet_path, columns=["JURISDICTION", "STATE"])
-    pairs = df[["JURISDICTION", "STATE"]].drop_duplicates(keep="first")
-    for _, row in pairs.iterrows():
-        jurisdiction = str(row["JURISDICTION"])
-        state = str(row["STATE"])
-        if not script_path_for(state, jurisdiction).exists():
-            return jurisdiction, state
-    return None
 
 
 def _paths_needing_stage(pathspecs: tuple[str, ...] | list[str]) -> list[str]:
@@ -121,7 +92,7 @@ def parse_args() -> argparse.Namespace:
         "--max-runs",
         type=int,
         default=1,
-        help="Maximum number of agent runs (default: 1).",
+        help="Number of agent runs (default: 1).",
     )
     p.add_argument(
         "--model",
@@ -135,14 +106,9 @@ def parse_args() -> argparse.Namespace:
         help="Path to the fixed prompt text file.",
     )
     p.add_argument(
-        "--skip-exhaustion-check",
-        action="store_true",
-        help="Do not pre-check for missing jurisdictions before each run.",
-    )
-    p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Print the next missing jurisdiction and exit without launching an agent.",
+        help="Print run config and exit without launching an agent.",
     )
     return p.parse_args()
 
@@ -174,31 +140,13 @@ def main() -> int:
         print(f"Prompt file is empty: {prompt_path}", file=sys.stderr)
         return 1
 
-    my_data = os.environ.get("MY_DATA_PATH")
-    parquet_path = None
-    if my_data:
-        parquet_path = Path(my_data) / "processed_data" / "permits_ca_sample.parquet"
+    print(f"repo={REPO_ROOT}")
+    print(f"model={args.model}")
+    print(f"max_runs={args.max_runs}")
+    print(f"prompt={prompt_path}")
 
     if args.dry_run:
-        print(f"repo={REPO_ROOT}")
-        print(f"prompt={prompt_path}")
-        print(f"MY_DATA_PATH={my_data}")
-        if parquet_path is None:
-            print("MY_DATA_PATH not set; cannot resolve next jurisdiction.", file=sys.stderr)
-            return 1
-        if not parquet_path.is_file():
-            print(f"Parquet not found: {parquet_path}", file=sys.stderr)
-            return 1
-        print(f"parquet={parquet_path}")
-        missing = first_missing_jurisdiction(parquet_path)
-        if missing is None:
-            print("No missing jurisdictions remain.")
-            return 0
-        jurisdiction, state = missing
-        expected = script_path_for(state, jurisdiction)
-        print(f"next_target={jurisdiction}, {state}")
-        print(f"expected_script={expected.relative_to(REPO_ROOT)}")
-        print(f"exists={expected.exists()}")
+        print("dry_run=True (not launching agents)")
         return 0
 
     try:
@@ -211,28 +159,10 @@ def main() -> int:
         )
         return 1
 
-    print(f"repo={REPO_ROOT}")
-    print(f"model={args.model}")
-    print(f"max_runs={args.max_runs}")
-    print(f"prompt={prompt_path}")
-
     summaries: list[dict] = []
 
     for i in range(1, args.max_runs + 1):
         print(f"\n=== run {i}/{args.max_runs} ===")
-
-        if not args.skip_exhaustion_check and parquet_path is not None:
-            if not parquet_path.is_file():
-                print(f"Parquet not found: {parquet_path}", file=sys.stderr)
-                return 1
-            missing = first_missing_jurisdiction(parquet_path)
-            if missing is None:
-                print("No missing jurisdictions remain; stopping.")
-                break
-            jurisdiction, state = missing
-            expected = script_path_for(state, jurisdiction)
-            print(f"next_target={jurisdiction}, {state}")
-            print(f"expected_script={expected.relative_to(REPO_ROOT)}")
 
         started = time.monotonic()
         try:
