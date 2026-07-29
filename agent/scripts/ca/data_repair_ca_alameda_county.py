@@ -116,6 +116,8 @@ def _project_search(d: dict) -> dict:
         if isinstance(s, dict) and str(s.get("msValue", "")).startswith("Project:"):
             return s
     search = d.get("search") or []
+    if isinstance(search, dict):
+        return search
     if search and isinstance(search[0], dict):
         return search[0]
     return {}
