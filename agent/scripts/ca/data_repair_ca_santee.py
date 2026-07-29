@@ -1,19 +1,20 @@
-"""Data repair for La Cañada Flintridge (CA) permit records.
+"""Data repair for Santee (CA) permit records.
 
 Repairs STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE using
 the raw DATA JSON column. Creates {FIELD}_FLAG columns with "FILLED" or
 "FIXED" annotations for every value that was changed.
 
-La Cañada Flintridge DATA is a Tyler EnerGov-style payload with top-level
-keys ``entity``, ``details``, ``contacts``, ``fees``, and
+Santee DATA is a Tyler EnerGov-style payload with top-level keys
+``entity``, ``details``, ``contacts``, ``fees``, and
 ``processing_status``, plus an optional reviews bundle (``reviews`` /
-``holds`` / ``attachments`` / ``more_info``). Two key-set variants appear
-in the sample:
+``holds`` / ``attachments`` / ``more_info``). Two key-set variants
+appear in the sample:
 
+  - entity_fees_reviews:  entity + details + contacts + fees +
+                          processing_status + reviews/holds/attachments/
+                          more_info
   - entity_fees:          entity + details + contacts + fees +
                           processing_status
-  - entity_fees_reviews:  entity_fees plus reviews/holds/attachments/
-                          more_info
 
 Canonical fields live under ``entity`` (with details fallbacks):
   - CaseStatus / details.PermitStatus  → STATUS_NORMALIZED
@@ -21,39 +22,30 @@ Canonical fields live under ``entity`` (with details fallbacks):
   - IssueDate                          → PERMIT_DATE
   - FinalDate (fallback: details.FinalizeDate) → FINAL_DATE
 
-City-specific CaseStatus labels include review-pipeline variants that
-were never mapped into STATUS_NORMALIZED:
-``Pending Submittal of Requested Documents``, ``Pending Building
-Approval``, ``In Screening``, ``Requires Resubmittal``, and
-``Approved Pending Agency Clearances``. Terminal completion uses
-``Complete`` (not Finaled).
-
 Known issues repaired:
-  - 145 unmapped review-pipeline CaseStatus values left STATUS_NORMALIZED
-    null → FILLED as In Review.
-  - ``Issued`` shells with FinalDate strictly after IssueDate left Active
-    → FIXED to Final; FINAL_DATE kept / already populated.
-  - ``On Hold`` shell with IssueDate and FinalDate after IssueDate left
-    In Review → FIXED to Final.
-  - Junk FINAL_DATE on non-Final rows (Void / Withdrawn / Expired /
-    Plan Approval Expired closure stamps; Active same-day or inverted
-    FinalDate stamps; Requires Resubmittal stamp) → cleared when
-    effective status is not Final.
+  - ``Issued`` shells with FinalizeDate / FinalDate strictly after
+    IssueDate left Active → FIXED to Final; FINAL_DATE retained.
+  - ``In Review`` / ``Fees Due`` shells that already carry IssueDate
+    (or PermitStatus=Issued with details.IssueDate) left In Review
+    → FIXED to Active; PERMIT_DATE FILLED when missing.
+  - EnerGov 1900-01-01 sentinel IssueDate / FinalDate values propagated
+    into PERMIT_DATE / FINAL_DATE → cleared (FIXED).
+  - Junk FINAL_DATE on non-Final rows (Expired 1900 sentinels; Void
+    same-day closure stamps; Issued with inverted FinalDate) → cleared.
 
 Not repairable / left as-is:
   - FILE_DATE already matches entity.ApplyDate at calendar-day
     resolution for every sample row.
-  - Active / Final PERMIT_DATE already matches IssueDate wherever
-    IssueDate is present (no fills needed after status repair).
-  - Complete shells already have FINAL_DATE matching FinalDate
-    (905/905).
+  - Complete shells with null IssueDate and null FinalDate
+    (legacy zzEncroachment records) → PERMIT_DATE / FINAL_DATE stay
+    missing.
+  - One Complete shell with FinalDate but null IssueDate → FINAL_DATE
+    present; PERMIT_DATE stays missing.
   - ExpireDate is a validity window, not a completion date.
-  - FinalDate on Void / Withdrawn / Expired / Plan Approval Expired is
-    a case-closure stamp, not a permit finaled date (status stays
-    Inactive; FINAL_DATE cleared).
-  - Issued shells with FinalDate equal to or before IssueDate stay
-    Active; those stamps are not treated as completion.
-  - processing_status is null/empty for every sample row.
+  - FinalDate on Void is a case-closure stamp, not a permit finaled
+    date (status stays Inactive; FINAL_DATE cleared).
+  - Issued shell with FinalDate strictly before IssueDate is not
+    treated as Final (inverted stamp cleared from FINAL_DATE).
 """
 
 from __future__ import annotations
@@ -101,7 +93,6 @@ def _safe_to_datetime(val):
     if dt is pd.NaT or pd.isna(dt):
         return pd.NaT
     year = int(dt.year)
-    # EnerGov sometimes uses 1900-01-01 or far-future years as placeholders.
     if year < _MIN_YEAR or year > _MAX_YEAR:
         return pd.NaT
     return dt
@@ -130,91 +121,49 @@ _STATUS_MAP = {
     "Complete": "Final",
     "Closed": "Final",
     "Finaled": "Final",
-    "Finaled - Online": "Final",
     "Final": "Final",
     "Finalized": "Final",
-    "Legacy": "Final",
     # Active
     "Issued": "Active",
-    "Issued - Online": "Active",
-    "Issued - Revision": "Active",
-    "Revision Issued": "Active",
-    "Fees Due (Post-Issuance)": "Active",
     "Active": "Active",
-    "Case Opened": "Active",
     # Inactive
     "Expired": "Inactive",
-    "Plan Approval Expired": "Inactive",
     "Void": "Inactive",
     "Voided": "Inactive",
     "Withdrawn": "Inactive",
     "Canceled": "Inactive",
     "Cancelled": "Inactive",
     "Denied": "Inactive",
-    "Rejected": "Inactive",
-    "Revoked": "Inactive",
-    "Refunded": "Inactive",
-    # In Review (pre-issuance / plan approval / pending)
-    "Applied": "In Review",
-    "Submitted": "In Review",
-    "Submitted Online": "In Review",
-    "Submitted - Online": "In Review",
-    "Online Submission": "In Review",
+    # In Review
     "In Review": "In Review",
-    "In Review - Online": "In Review",
-    "In Plan Check": "In Review",
-    "In Screening": "In Review",
-    "Resubmittal Required": "In Review",
-    "Requires Resubmittal": "In Review",
-    "Requires Re-submittal": "In Review",
-    "Requires Re-submittal - Online": "In Review",
-    "Pending Submittal of Requested Documents": "In Review",
-    "Pending Invoice Payment": "In Review",
-    "Pending Building Approval": "In Review",
-    "Approved Pending Agency Clearances": "In Review",
+    "Submitted": "In Review",
+    "Submitted - Online": "In Review",
     "Fees Due": "In Review",
     "Fees Paid": "In Review",
-    "Deposit Fees Due": "In Review",
-    "Deposit Fees Paid": "In Review",
-    "Returned to Applicant": "In Review",
-    "Other - See Comments": "In Review",
-    "OFC": "In Review",
     "On Hold": "In Review",
-    "On Hold/Pending": "In Review",
+    "Waiting for Files": "In Review",
+    "Plan Check Fee Due": "In Review",
     "Pending": "In Review",
     "Approved": "In Review",
-    "Approved - Online": "In Review",
-    "Estimate": "In Review",
-    "Plan Check": "In Review",
-    "Stop Work Order": "In Review",
 }
 
 _INACTIVE_LABELS = {
     "Expired",
-    "Plan Approval Expired",
     "Void",
     "Voided",
     "Withdrawn",
     "Canceled",
     "Cancelled",
     "Denied",
-    "Rejected",
-    "Revoked",
-    "Refunded",
 }
 
 _FINAL_LABELS = {
     "Complete",
     "Closed",
     "Finaled",
-    "Finaled - Online",
     "Final",
     "Finalized",
-    "Legacy",
 }
-
-# Final* inspection outcomes that count as completion evidence.
-_FINAL_INSPECTION_OK = {"final", "passed", "approved"}
 
 
 def _status_strings(d: dict) -> list[str]:
@@ -252,38 +201,6 @@ def _is_issued(d: dict) -> bool:
 def _raw_final_stamp(d: dict):
     """Raw FinalDate / FinalizeDate without credibility filter."""
     return _entity_date(d, "FinalDate", "FinalizeDate")
-
-
-def _final_inspection_date(d: dict):
-    """Latest successful Final* processing_status item.
-
-    EnerGov extracts sometimes populate inspection ``status`` values
-    ``Final``, ``Approved``, or ``Passed``. La Cañada Flintridge's sample
-    has processing_status null/empty on every row; kept for schema parity.
-    """
-    ps = d.get("processing_status")
-    if not isinstance(ps, list):
-        return pd.NaT
-    best = pd.NaT
-    for item in ps:
-        if not isinstance(item, dict):
-            continue
-        desc = str(item.get("description") or "")
-        status = str(item.get("status") or "").strip().lower()
-        if "final" not in desc.lower():
-            continue
-        if status not in _FINAL_INSPECTION_OK:
-            continue
-        if "partial" in status:
-            continue
-        dt = _safe_to_datetime(item.get("scheduled_date"))
-        if dt is pd.NaT:
-            dt = _safe_to_datetime(item.get("requested_date"))
-        if dt is pd.NaT:
-            continue
-        if best is pd.NaT or dt > best:
-            best = dt
-    return best
 
 
 def _has_final_label(d: dict) -> bool:
@@ -324,7 +241,6 @@ def _mapped_status(d: dict) -> Optional[str]:
             or lower == "final"
             or lower == "closed"
             or "complete" in lower
-            or lower == "legacy"
         ):
             return "Final"
         if any(
@@ -337,46 +253,23 @@ def _mapped_status(d: dict) -> Optional[str]:
                 "cancel",
                 "revoked",
                 "rejected",
-                "refunded",
-                "not accepted",
             )
         ):
             return "Inactive"
-        if (
-            lower.startswith("issued")
-            or "revision issued" in lower
-            or lower == "active"
-            or "post-issuance" in lower
-            or lower == "case opened"
-        ):
+        if lower.startswith("issued") or lower == "active":
             return "Active"
         if any(
             tok in lower
             for tok in (
                 "review",
                 "submitted",
-                "received",
                 "pending",
                 "on hold",
-                "incomplete",
-                "ready to issue",
-                "approved",
-                "estimate",
-                "corrections",
-                "applied",
-                "awaiting",
-                "intake",
                 "fees due",
                 "fees paid",
-                "deposit fees",
-                "returned to applicant",
-                "other - see comments",
-                "resubmittal",
-                "screening",
+                "waiting for files",
                 "plan check",
-                "ofc",
-                "stop work",
-                "online",
+                "approved",
             )
         ):
             return "In Review"
@@ -386,12 +279,12 @@ def _mapped_status(d: dict) -> Optional[str]:
 def _expected_status(d: dict) -> Optional[str]:
     """Derive STATUS_NORMALIZED from CaseStatus/PermitStatus with date overrides.
 
-    Inactive terminal labels (Expired / Void / Denied / Withdrawn) are
-    sticky even when FinalDate is present as a case-closure stamp.
-    Explicit Complete/Finaled labels → Final. Otherwise a FinalDate /
-    FinalizeDate strictly after IssueDate → Final (stale Issued / On Hold
-    shells). IssueDate → Active overrides review-pipeline labels when no
-    credible completion stamp is present.
+    Inactive terminal labels (Expired / Void / Cancelled) are sticky even
+    when FinalDate is present as a case-closure stamp. Explicit Complete /
+    Final labels → Final. Otherwise a FinalDate/FinalizeDate strictly
+    after IssueDate → Final (stale Issued shells). IssueDate → Active
+    overrides review-pipeline labels (In Review / Fees Due) when
+    issuance is present.
     """
     if _is_inactive_label(d):
         return "Inactive"
@@ -456,8 +349,12 @@ def _repair_record(row, d: dict, repairs: dict):
         if issue is not pd.NaT and not _dates_equal(current_permit, issue):
             repairs["PERMIT_DATE"] = issue
             repairs["PERMIT_DATE_FLAG"] = "FIXED"
+        elif issue is pd.NaT:
+            # Clear orphan / EnerGov 1900-01-01 sentinel PERMIT_DATE when
+            # no credible IssueDate remains.
+            repairs["PERMIT_DATE"] = pd.NaT
+            repairs["PERMIT_DATE_FLAG"] = "FIXED"
         elif effective_status == "In Review" and not _is_issued(d):
-            # Clear spurious permit dates on non-issued review rows.
             repairs["PERMIT_DATE"] = pd.NaT
             repairs["PERMIT_DATE_FLAG"] = "FIXED"
     elif effective_status in ("Active", "Final") and issue is not pd.NaT:
@@ -468,8 +365,6 @@ def _repair_record(row, d: dict, repairs: dict):
     # Non-Final statuses often carry junk FinalDate stamps; only keep
     # FINAL_DATE when status is Final.
     final = _raw_final_stamp(d)
-    if final is pd.NaT:
-        final = _final_inspection_date(d)
     current_final = row["FINAL_DATE"]
 
     if effective_status == "Final":
@@ -480,6 +375,11 @@ def _repair_record(row, d: dict, repairs: dict):
             elif not _dates_equal(current_final, final):
                 repairs["FINAL_DATE"] = final
                 repairs["FINAL_DATE_FLAG"] = "FIXED"
+        elif not pd.isna(current_final) and _safe_to_datetime(current_final) is pd.NaT:
+            # Clear sentinel FINAL_DATE (e.g. 1900-01-01) with no credible
+            # FinalDate backing.
+            repairs["FINAL_DATE"] = pd.NaT
+            repairs["FINAL_DATE_FLAG"] = "FIXED"
     elif not pd.isna(current_final):
         repairs["FINAL_DATE"] = pd.NaT
         repairs["FINAL_DATE_FLAG"] = "FIXED"
@@ -489,13 +389,13 @@ def _repair_record(row, d: dict, repairs: dict):
 
 def data_repair(df: pd.DataFrame) -> pd.DataFrame:
     """Repair STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE for
-    La Cañada Flintridge permit records using information from the raw DATA
-    JSON column.
+    Santee permit records using information from the raw DATA JSON
+    column.
 
     Parameters
     ----------
     df : pd.DataFrame
-        DataFrame filtered to JURISDICTION == "La Cañada Flintridge".  Must
+        DataFrame filtered to JURISDICTION == "Santee".  Must
         contain columns STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE,
         FINAL_DATE, and DATA.
 
@@ -558,17 +458,17 @@ if __name__ == "__main__":
     )
     df = pd.read_parquet(filepath)
     city = df[
-        (df["JURISDICTION"] == "La Cañada Flintridge") & (df["STATE"] == "CA")
+        (df["JURISDICTION"] == "Santee") & (df["STATE"] == "CA")
     ].copy()
 
-    print(f"La Cañada Flintridge records: {len(city):,}\n")
+    print(f"Santee records: {len(city):,}\n")
 
     repaired = data_repair(city)
 
     if AGENT_DATA_PATH:
         out_dir = Path(AGENT_DATA_PATH) / "repaired"
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / "permits_ca_la_canada_flintridge_repaired.parquet"
+        out_path = out_dir / "permits_ca_santee_repaired.parquet"
         repaired.to_parquet(out_path, index=False)
         print(f"Wrote {out_path}\n")
 

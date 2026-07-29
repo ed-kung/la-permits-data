@@ -1,59 +1,56 @@
-"""Data repair for La Cañada Flintridge (CA) permit records.
+"""Data repair for Lake Elsinore (CA) permit records.
 
 Repairs STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE using
 the raw DATA JSON column. Creates {FIELD}_FLAG columns with "FILLED" or
 "FIXED" annotations for every value that was changed.
 
-La Cañada Flintridge DATA is a Tyler EnerGov-style payload with top-level
-keys ``entity``, ``details``, ``contacts``, ``fees``, and
-``processing_status``, plus an optional reviews bundle (``reviews`` /
-``holds`` / ``attachments`` / ``more_info``). Two key-set variants appear
-in the sample:
+Lake Elsinore DATA is a Tyler EnerGov-style payload with top-level keys
+``entity``, ``details``, ``contacts``, and ``processing_status``, plus
+optional ``fees`` and a reviews bundle (``reviews`` / ``holds`` /
+``attachments`` / ``more_info``). Three key-set variants appear in the
+sample:
 
-  - entity_fees:          entity + details + contacts + fees +
-                          processing_status
+  - entity_basic:         entity + details + contacts +
+                          processing_status (no fees)
+  - entity_fees:          entity_basic plus fees
   - entity_fees_reviews:  entity_fees plus reviews/holds/attachments/
                           more_info
 
-Canonical fields live under ``entity`` (with details fallbacks):
+Canonical fields live under ``entity`` (with details fallbacks). Agency
+``CaseStatus`` / ``PermitStatus`` labels are uppercase in this extract:
+
   - CaseStatus / details.PermitStatus  → STATUS_NORMALIZED
   - ApplyDate                          → FILE_DATE
   - IssueDate                          → PERMIT_DATE
   - FinalDate (fallback: details.FinalizeDate) → FINAL_DATE
 
-City-specific CaseStatus labels include review-pipeline variants that
-were never mapped into STATUS_NORMALIZED:
-``Pending Submittal of Requested Documents``, ``Pending Building
-Approval``, ``In Screening``, ``Requires Resubmittal``, and
-``Approved Pending Agency Clearances``. Terminal completion uses
-``Complete`` (not Finaled).
-
 Known issues repaired:
-  - 145 unmapped review-pipeline CaseStatus values left STATUS_NORMALIZED
-    null → FILLED as In Review.
-  - ``Issued`` shells with FinalDate strictly after IssueDate left Active
-    → FIXED to Final; FINAL_DATE kept / already populated.
-  - ``On Hold`` shell with IssueDate and FinalDate after IssueDate left
-    In Review → FIXED to Final.
-  - Junk FINAL_DATE on non-Final rows (Void / Withdrawn / Expired /
-    Plan Approval Expired closure stamps; Active same-day or inverted
-    FinalDate stamps; Requires Resubmittal stamp) → cleared when
-    effective status is not Final.
+  - ``APPROVED`` shells left Active (STATUS_ORIGINAL=approved maps to
+    Active upstream) → FIXED to In Review when no IssueDate; the few
+    APPROVED rows with IssueDate stay / become Active via the issuance
+    override.
+  - ``ISSUED`` shells with FinalDate strictly after IssueDate left
+    Active → FIXED to Final (stale Issued shells that already carry a
+    completion stamp).
+  - Review-pipeline shells (``SUBMITTED``, ``SUBMITTED - ONLINE``,
+    ``ON HOLD``, ``PLANNING APPROVED``) with IssueDate left In Review
+    → FIXED to Active; PERMIT_DATE FILLED when missing.
+  - ``TEST`` shells left In Review → FIXED to Inactive.
+  - Junk FINAL_DATE on non-Final rows (VOID case-closure stamps;
+    APPROVED planning FinalDate without issuance) → cleared.
 
 Not repairable / left as-is:
   - FILE_DATE already matches entity.ApplyDate at calendar-day
     resolution for every sample row.
-  - Active / Final PERMIT_DATE already matches IssueDate wherever
-    IssueDate is present (no fills needed after status repair).
-  - Complete shells already have FINAL_DATE matching FinalDate
-    (905/905).
-  - ExpireDate is a validity window, not a completion date.
-  - FinalDate on Void / Withdrawn / Expired / Plan Approval Expired is
-    a case-closure stamp, not a permit finaled date (status stays
-    Inactive; FINAL_DATE cleared).
-  - Issued shells with FinalDate equal to or before IssueDate stay
-    Active; those stamps are not treated as completion.
-  - processing_status is null/empty for every sample row.
+  - Seven FINAL shells with null IssueDate → PERMIT_DATE stays missing
+    (signs / certificate-of-occupancy style cases).
+  - ExpireDate is a validity window (including rare 2099 sentinels),
+    not a completion date.
+  - FinalDate on VOID is a case-closure stamp, not a permit finaled
+    date (status stays Inactive; FINAL_DATE cleared).
+  - APPROVED FinalDate without IssueDate is not treated as completion
+    (status stays In Review; FINAL_DATE cleared).
+  - ClosedDate / CompleteDate are null throughout the sample.
 """
 
 from __future__ import annotations
@@ -125,26 +122,30 @@ def _classify_schema(data_dict: Optional[dict]) -> str:
 # ── Status mapping ──────────────────────────────────────────────────────────
 
 # entity.CaseStatus / details.PermitStatus → STATUS_NORMALIZED
+# Lake Elsinore labels are uppercase; title-case aliases kept for parity.
 _STATUS_MAP = {
     # Final
-    "Complete": "Final",
+    "FINAL": "Final",
+    "CLOSED": "Final",
+    "Final": "Final",
     "Closed": "Final",
     "Finaled": "Final",
-    "Finaled - Online": "Final",
-    "Final": "Final",
+    "Complete": "Final",
     "Finalized": "Final",
-    "Legacy": "Final",
     # Active
+    "ISSUED": "Active",
+    "EXTENSION": "Active",
     "Issued": "Active",
-    "Issued - Online": "Active",
-    "Issued - Revision": "Active",
-    "Revision Issued": "Active",
-    "Fees Due (Post-Issuance)": "Active",
     "Active": "Active",
     "Case Opened": "Active",
     # Inactive
+    "EXPIRED": "Inactive",
+    "VOID": "Inactive",
+    "WITHDRAWN": "Inactive",
+    "REFUND/CANCELLED": "Inactive",
+    "REVOKED": "Inactive",
+    "TEST": "Inactive",
     "Expired": "Inactive",
-    "Plan Approval Expired": "Inactive",
     "Void": "Inactive",
     "Voided": "Inactive",
     "Withdrawn": "Inactive",
@@ -154,44 +155,31 @@ _STATUS_MAP = {
     "Rejected": "Inactive",
     "Revoked": "Inactive",
     "Refunded": "Inactive",
-    # In Review (pre-issuance / plan approval / pending)
-    "Applied": "In Review",
+    # In Review (pre-issuance / plan approval)
+    "SUBMITTED": "In Review",
+    "SUBMITTED - ONLINE": "In Review",
+    "APPROVED": "In Review",
+    "IN REVIEW": "In Review",
+    "ON HOLD": "In Review",
+    "PLANNING APPROVED": "In Review",
     "Submitted": "In Review",
     "Submitted Online": "In Review",
     "Submitted - Online": "In Review",
-    "Online Submission": "In Review",
-    "In Review": "In Review",
-    "In Review - Online": "In Review",
-    "In Plan Check": "In Review",
-    "In Screening": "In Review",
-    "Resubmittal Required": "In Review",
-    "Requires Resubmittal": "In Review",
-    "Requires Re-submittal": "In Review",
-    "Requires Re-submittal - Online": "In Review",
-    "Pending Submittal of Requested Documents": "In Review",
-    "Pending Invoice Payment": "In Review",
-    "Pending Building Approval": "In Review",
-    "Approved Pending Agency Clearances": "In Review",
-    "Fees Due": "In Review",
-    "Fees Paid": "In Review",
-    "Deposit Fees Due": "In Review",
-    "Deposit Fees Paid": "In Review",
-    "Returned to Applicant": "In Review",
-    "Other - See Comments": "In Review",
-    "OFC": "In Review",
-    "On Hold": "In Review",
-    "On Hold/Pending": "In Review",
-    "Pending": "In Review",
     "Approved": "In Review",
-    "Approved - Online": "In Review",
-    "Estimate": "In Review",
-    "Plan Check": "In Review",
-    "Stop Work Order": "In Review",
+    "In Review": "In Review",
+    "On Hold": "In Review",
+    "Pending": "In Review",
+    "Applied": "In Review",
 }
 
 _INACTIVE_LABELS = {
+    "EXPIRED",
+    "VOID",
+    "WITHDRAWN",
+    "REFUND/CANCELLED",
+    "REVOKED",
+    "TEST",
     "Expired",
-    "Plan Approval Expired",
     "Void",
     "Voided",
     "Withdrawn",
@@ -204,13 +192,13 @@ _INACTIVE_LABELS = {
 }
 
 _FINAL_LABELS = {
-    "Complete",
+    "FINAL",
+    "CLOSED",
+    "Final",
     "Closed",
     "Finaled",
-    "Finaled - Online",
-    "Final",
+    "Complete",
     "Finalized",
-    "Legacy",
 }
 
 # Final* inspection outcomes that count as completion evidence.
@@ -257,9 +245,9 @@ def _raw_final_stamp(d: dict):
 def _final_inspection_date(d: dict):
     """Latest successful Final* processing_status item.
 
-    EnerGov extracts sometimes populate inspection ``status`` values
-    ``Final``, ``Approved``, or ``Passed``. La Cañada Flintridge's sample
-    has processing_status null/empty on every row; kept for schema parity.
+    Lake Elsinore inspections commonly use statuses like
+    ``PASSED (PERMIT)``; only descriptions containing ``final`` with an
+    ok outcome are treated as completion evidence.
     """
     ps = d.get("processing_status")
     if not isinstance(ps, list):
@@ -272,7 +260,8 @@ def _final_inspection_date(d: dict):
         status = str(item.get("status") or "").strip().lower()
         if "final" not in desc.lower():
             continue
-        if status not in _FINAL_INSPECTION_OK:
+        # Accept "passed", "approved", "final", including "passed (permit)".
+        if not any(tok in status for tok in _FINAL_INSPECTION_OK):
             continue
         if "partial" in status:
             continue
@@ -293,7 +282,7 @@ def _has_final_label(d: dict) -> bool:
 def _has_credible_final_stamp(d: dict) -> bool:
     """True when FinalDate/FinalizeDate is credible completion evidence.
 
-    Require either an explicit Final/Complete label, or FinalDate /
+    Require either an explicit Final/Closed label, or FinalDate /
     FinalizeDate strictly after IssueDate (stale Issued shells).
     Same-day or inverted stamps are not treated as completion.
     """
@@ -317,6 +306,10 @@ def _mapped_status(d: dict) -> Optional[str]:
         mapped = _STATUS_MAP.get(raw)
         if mapped is not None:
             return mapped
+        upper = raw.upper()
+        mapped = _STATUS_MAP.get(upper)
+        if mapped is not None:
+            return mapped
         lower = raw.lower()
         if (
             "finalized" in lower
@@ -324,7 +317,6 @@ def _mapped_status(d: dict) -> Optional[str]:
             or lower == "final"
             or lower == "closed"
             or "complete" in lower
-            or lower == "legacy"
         ):
             return "Final"
         if any(
@@ -337,15 +329,15 @@ def _mapped_status(d: dict) -> Optional[str]:
                 "cancel",
                 "revoked",
                 "rejected",
-                "refunded",
-                "not accepted",
+                "refund",
+                "test",
             )
         ):
             return "Inactive"
         if (
             lower.startswith("issued")
-            or "revision issued" in lower
             or lower == "active"
+            or lower == "extension"
             or "post-issuance" in lower
             or lower == "case opened"
         ):
@@ -368,15 +360,9 @@ def _mapped_status(d: dict) -> Optional[str]:
                 "intake",
                 "fees due",
                 "fees paid",
-                "deposit fees",
-                "returned to applicant",
-                "other - see comments",
                 "resubmittal",
-                "screening",
                 "plan check",
-                "ofc",
-                "stop work",
-                "online",
+                "planning",
             )
         ):
             return "In Review"
@@ -386,12 +372,12 @@ def _mapped_status(d: dict) -> Optional[str]:
 def _expected_status(d: dict) -> Optional[str]:
     """Derive STATUS_NORMALIZED from CaseStatus/PermitStatus with date overrides.
 
-    Inactive terminal labels (Expired / Void / Denied / Withdrawn) are
-    sticky even when FinalDate is present as a case-closure stamp.
-    Explicit Complete/Finaled labels → Final. Otherwise a FinalDate /
-    FinalizeDate strictly after IssueDate → Final (stale Issued / On Hold
-    shells). IssueDate → Active overrides review-pipeline labels when no
-    credible completion stamp is present.
+    Inactive terminal labels (Expired / Void / Withdrawn / Refund /
+    Revoked / Test) are sticky even when FinalDate is present as a
+    case-closure stamp. Explicit Final/Closed labels → Final. Otherwise
+    a FinalDate/FinalizeDate strictly after IssueDate → Final (stale
+    Issued shells). IssueDate → Active overrides review-pipeline labels
+    (In Review / Approved / Submitted / On Hold / Planning Approved).
     """
     if _is_inactive_label(d):
         return "Inactive"
@@ -489,13 +475,13 @@ def _repair_record(row, d: dict, repairs: dict):
 
 def data_repair(df: pd.DataFrame) -> pd.DataFrame:
     """Repair STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE for
-    La Cañada Flintridge permit records using information from the raw DATA
-    JSON column.
+    Lake Elsinore permit records using information from the raw DATA JSON
+    column.
 
     Parameters
     ----------
     df : pd.DataFrame
-        DataFrame filtered to JURISDICTION == "La Cañada Flintridge".  Must
+        DataFrame filtered to JURISDICTION == "Lake Elsinore".  Must
         contain columns STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE,
         FINAL_DATE, and DATA.
 
@@ -558,17 +544,17 @@ if __name__ == "__main__":
     )
     df = pd.read_parquet(filepath)
     city = df[
-        (df["JURISDICTION"] == "La Cañada Flintridge") & (df["STATE"] == "CA")
+        (df["JURISDICTION"] == "Lake Elsinore") & (df["STATE"] == "CA")
     ].copy()
 
-    print(f"La Cañada Flintridge records: {len(city):,}\n")
+    print(f"Lake Elsinore records: {len(city):,}\n")
 
     repaired = data_repair(city)
 
     if AGENT_DATA_PATH:
         out_dir = Path(AGENT_DATA_PATH) / "repaired"
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / "permits_ca_la_canada_flintridge_repaired.parquet"
+        out_path = out_dir / "permits_ca_lake_elsinore_repaired.parquet"
         repaired.to_parquet(out_path, index=False)
         print(f"Wrote {out_path}\n")
 
@@ -606,12 +592,16 @@ if __name__ == "__main__":
             pd.DataFrame({
                 "before": city.loc[mask, "STATUS_NORMALIZED"].fillna("nan").astype(str),
                 "after": repaired.loc[mask, "STATUS_NORMALIZED"].fillna("nan").astype(str),
+                "original": city.loc[mask, "STATUS_ORIGINAL"].fillna("nan").astype(str),
             })
             .value_counts()
             .reset_index(name="n")
         )
         for _, trow in transitions.iterrows():
-            print(f"  {trow['before']:15s} → {trow['after']:15s}: {trow['n']:>4,}")
+            print(
+                f"  {trow['before']:15s} → {trow['after']:15s} "
+                f"(STATUS_ORIGINAL={trow['original']}): {trow['n']:>4,}"
+            )
     else:
         print("  (none)")
 
@@ -665,19 +655,6 @@ if __name__ == "__main__":
         if repaired.at[idx, "STATUS_NORMALIZED"] not in ("Active", "Final"):
             continue
         if pd.notna(repaired.at[idx, "PERMIT_DATE"]):
-            continue
-        d = _safe_parse(city.at[idx, "DATA"])
-        entity = (d or {}).get("entity") or {}
-        gap[entity.get("CaseStatus")] += 1
-    for k, v in gap.most_common():
-        print(f"  {k}: {v}")
-
-    print("\nFinal still missing FINAL_DATE (by CaseStatus):")
-    gap = Counter()
-    for idx in repaired.index:
-        if repaired.at[idx, "STATUS_NORMALIZED"] != "Final":
-            continue
-        if pd.notna(repaired.at[idx, "FINAL_DATE"]):
             continue
         d = _safe_parse(city.at[idx, "DATA"])
         entity = (d or {}).get("entity") or {}
