@@ -1,5 +1,6 @@
 """Shared utilities for working with the permits dataset."""
 
+import sys
 import json
 import math
 import re
@@ -21,9 +22,65 @@ DEWEY_PATH = os.path.join(RAW_DATA_PATH, "dewey-downloads", "building-permits-un
 
 DEWEY_SUMMARY_FILEPATH = os.path.join(MY_DATA_PATH, "dewey_summary.parquet")
 
+sys.path.append(os.path.join(ROOT_PATH, "agent/scripts"))
+from data_repair import data_repair, _slugify
+
+
+# -- Deduplicate data -------------------------------------
+def _deduplicate(df):
+    n_original = len(df)
+
+    # First pass: drop exact duplicates
+    df = df.drop_duplicates(keep='first')
+
+    # Second pass: keep most complete row per PERMIT_NUMBER
+    has_key = df['PERMIT_NUMBER'].notna()
+    df_keyed = df.loc[has_key].copy()
+    df_nokey = df.loc[~has_key].copy()
+
+    df_keyed['_non_null'] = df_keyed.notna().sum(axis=1)
+
+    df_keyed = (
+        df_keyed
+        .sort_values(by='_non_null', ascending=False, kind='stable')
+        .drop_duplicates(subset='PERMIT_NUMBER', keep='first')
+        .drop(columns='_non_null')
+    )
+
+    df = pd.concat([df_keyed, df_nokey], ignore_index=True, sort=False)
+    n_new = len(df)
+
+    print(f"{n_original - n_new:,} duplicates dropped from {n_original:,} original records")
+
+    return df
+
+
+
 # -- Read data for one JURISDICTION/STATE -------------------------------------
 
-def get_data_for_jurisdiction(jurisdiction, state, columns=None, n_records=None, rng=np.random.RandomState(42), verbose=True):
+
+def get_data_for_jurisdiction(
+    jurisdiction, 
+    state, 
+    columns=None, 
+    n_records=None, 
+    repair=False,
+    deduplicate=False,
+    rng=np.random.RandomState(42), 
+    verbose=True,
+    save_to=None,
+    replace=False,
+    remove_raw_data_col=False
+):
+    if save_to is not None:
+        if not replace and os.path.exists(save_to):
+            df = pd.read_parquet(save_to)
+            if (len(df)>0) and (set(columns).issubset(set(df.columns.tolist()))):
+                return df
+            df = None
+        else:
+            os.makedirs(os.path.dirname(save_to), exist_ok=True)
+
     summary_df = pd.read_parquet(DEWEY_SUMMARY_FILEPATH)
     files = summary_df.loc[(summary_df['JURISDICTION'] == jurisdiction) & (summary_df['STATE'] == state), 'FILENAME'].tolist()
     if len(files) == 0:
@@ -43,135 +100,27 @@ def get_data_for_jurisdiction(jurisdiction, state, columns=None, n_records=None,
         if verbose:
             print(f"\rRetrieving data for {jurisdiction} {state} ... {i + 1}/{len(files)} files ... elapsed time {dt:.2f} seconds              ", end="", flush=True)
         temp_df = pd.read_parquet(os.path.join(DEWEY_PATH, f), columns=columns)
-        temp_df = temp_df.loc[(temp_df['JURISDICTION'] == jurisdiction) & (temp_df['STATE'] == state)]
+        temp_df = temp_df.loc[(temp_df['JURISDICTION'] == jurisdiction) & (temp_df['STATE'] == state)].reset_index(drop=True)
         temp_df = temp_df.sample(frac=frac, random_state=rng)
+        if repair:
+            temp_df = data_repair(temp_df, jurisdiction=jurisdiction, state=state)
+            temp_df['FILE_DATE'] = pd.to_datetime(temp_df['FILE_DATE'], errors='coerce', utc=True)
+            temp_df['PERMIT_DATE'] = pd.to_datetime(temp_df['PERMIT_DATE'], errors='coerce', utc=True)
+            temp_df['FINAL_DATE'] = pd.to_datetime(temp_df['FINAL_DATE'], errors='coerce', utc=True)
+        if remove_raw_data_col:
+            temp_df = temp_df.drop(columns=['DATA'])
         dfs.append(temp_df)
+
+    if verbose:
+        print("")
+
     df = pd.concat(dfs).reset_index(drop=True)
-    if verbose:
-        print("")
-    return df
-
-# -- Read data for multiple JURISDICTION/STATE pairs -------------------------------------
-
-def get_data_for_jurisdictions(jurisdictions, states, columns=None, n_records=None, rng=np.random.RandomState(42), verbose=True):
-    dfs = []
-    t0 = time.time()
-    i = 0
-    for jurisdiction, state in zip(jurisdictions, states):
-        df = get_data_for_jurisdiction(jurisdiction, state, columns=columns, n_records=n_records, rng=rng, verbose=verbose)
-        dfs.append(df)
+    if deduplicate:
+        df = _deduplicate(df)
+    if save_to is not None:
+        df.to_parquet(save_to)
         if verbose:
-            dt = time.time() - t0
-            print(f"{i+1}/{len(jurisdictions)} retrieved ... elapsed time: {dt:.2f} seconds")
-        i+=1
-    if verbose:
-        print("")
-    return pd.concat(dfs).reset_index(drop=True)
+            print(f"Data saved to {save_to}")
 
-# -- Data quality assessment ---------------------------------------------------
-
-STATUSES = ['Active', 'Final', 'Inactive', 'In Review']
-DATE_CONCEPTS = ['FILE_DATE', 'PERMIT_DATE', 'FINAL_DATE', 'PERMIT_OR_FILE_DATE']
-QUALITY_CONCEPTS = {
-    "Require FILE_DATE for all permits, PERMIT_DATE for Active and Final, FINAL_DATE for Final": {
-        "FILE_DATE": ["Active", "Final", "Inactive", "In Review"],
-        "PERMIT_DATE": ["Active", "Final"],
-        "FINAL_DATE": ["Final"]
-    },
-    "Require PERMIT_OR_FILE_DATE for all permits, FINAL_DATE for Final": {
-        "PERMIT_OR_FILE_DATE": ["Active", "Final", "Inactive", "In Review"],
-        "FINAL_DATE": ["Final"]
-    },
-    "Require PERMIT_OR_FILE_DATE for all permits": {
-        "PERMIT_OR_FILE_DATE": ["Active", "Final", "Inactive", "In Review"]
-    }
-}
-
-def assess_data_quality(df):
-    df['PERMIT_OR_FILE_DATE'] = df['PERMIT_DATE'].fillna(df['FILE_DATE'])
-    result = {}
-    n_total = len(df)
-    n_status_ok = (df['STATUS_NORMALIZED'].notna()).sum()
-    pct_status_ok = n_status_ok / (n_total + 1e-6)
-    result['n_total'] = n_total
-    result['n_status_ok'] = n_status_ok
-    result['pct_status_ok'] = pct_status_ok
-    for status in STATUSES:
-        result[f'status__{status}'] = {}
-        n_status = (df['STATUS_NORMALIZED'] == status).sum()
-        pct_status = n_status / (n_status_ok + 1e-6)
-        result[f'status__{status}']['n_status'] = n_status
-        result[f'status__{status}']['pct_status'] = pct_status
-        for dc in DATE_CONCEPTS:
-            result[f'status__{status}'][f'{dc}'] = {}
-            n_ok = ((df['STATUS_NORMALIZED'] == status) & (df[dc].notna())).sum()
-            pct_ok = n_ok / (n_status + 1e-6)
-            result[f'status__{status}'][f'{dc}']['n_ok'] = n_ok
-            result[f'status__{status}'][f'{dc}']['pct_ok'] = pct_ok
-    return result
-
-def data_quality_report(df, threshold=0.85):
-
-    jurs_df = df[['JURISDICTION', 'STATE']].drop_duplicates().reset_index(drop=True)
-    jurisdictions = jurs_df['JURISDICTION'].tolist()
-    states = jurs_df['STATE'].tolist()
-
-    md = ""
-    results = {}
-    for jurisdiction, state in zip(jurisdictions, states):
-
-        # Header and get data
-        md += f"## {jurisdiction} {state} \n\n"
-        sub_df = df.loc[(df['JURISDICTION'] == jurisdiction) & (df['STATE'] == state)]
-        if len(sub_df) == 0:
-            md += f"**No permits data found for {jurisdiction} {state}**.\n\n"
-            continue
-
-        result = assess_data_quality(sub_df)
-        results[(jurisdiction, state)] = result
-
-        # Total records
-        md += f"- Total records: {result['n_total']:,}\n"
-
-        # Schemas
-        if 'SCHEMA' in sub_df.columns:
-            schemas = sub_df['SCHEMA'].unique().tolist()
-            md += "- Schemas: \n"
-            for schema in schemas:
-                n_schema = (sub_df['SCHEMA'] == schema).sum()
-                pct_schema = n_schema / (len(sub_df) + 1e-6)
-                md += f"    - {schema}: {n_schema:,} ({pct_schema:.1%})\n"
-
-        # STATUS_NORMALIZED
-        okfail = "*OK*" if result['pct_status_ok'] >= threshold else "**FAIL**"
-        md += f"- STATUS_NORMALIZED not missing: {result['n_status_ok']:,} ({result['pct_status_ok']:.1%})  {okfail}\n"
-
-        # Date concepts by status
-        for status in STATUSES:
-            md += f"    - {status}: {result[f'status__{status}']['n_status']:,} ({result[f'status__{status}']['pct_status']:.1%})\n"
-            for dc in DATE_CONCEPTS:
-                okfail = "*OK*" if result[f'status__{status}'][f'{dc}']['pct_ok'] >= threshold else "**FAIL**"
-                md += f"        - {dc}: {result[f'status__{status}'][f'{dc}']['n_ok']:,} ({result[f'status__{status}'][f'{dc}']['pct_ok']:.1%})  {okfail}\n"
-        
-        md += "\n"
-    
-    # By data requirements
-    md += "## By data requirements\n\n"
-    for concept, reqs in QUALITY_CONCEPTS.items():
-        md += f"- {concept}: "
-        n_usable = 0
-        for jurisdiction, state in results.keys():
-            result = results[(jurisdiction, state)]
-            usable = True
-            for dc, statuses in reqs.items():
-                for status in statuses:
-                    if result[f'status__{status}'][f'{dc}']['pct_ok'] < threshold:
-                        usable = False
-                        break
-            if usable:
-                n_usable += 1
-        md += f"{n_usable:,} / {len(jurisdictions)} meet criteria\n"
-
-    md += "\n"
-    return md
+    return df
 
