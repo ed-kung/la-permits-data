@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Sequentially launch fresh local Cursor agents for CA data-repair work.
+"""Sequentially launch fresh local Cursor agents for data-repair work.
 
-Each iteration uses a new Agent (clear context) with the fixed prompt in
-prompts/ca_data_repair_next.txt. The agent chooses the next jurisdiction.
+Each iteration uses a new Agent (clear context) with a fixed prompt in
+agent/scripts/prompts/. The agent chooses the next jurisdiction.
 Requires CURSOR_API_KEY.
 
 After each finished agent run, stages new/changed repair scripts and reports
@@ -10,8 +10,8 @@ with `git add` (does not commit).
 
 Usage:
   export CURSOR_API_KEY=cursor_...
-  .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 1
-  .venv/bin/python agent/scripts/run_ca_data_repair_loop.py --max-runs 5 --model grok-4.5
+  .venv/bin/python agent/scripts/run_data_repair_loop.py --max-runs 1
+  .venv/bin/python agent/scripts/run_data_repair_loop.py --max-runs 5 --model grok-4.5
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "ca_data_repair_next.txt"
+DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "fl_data_repair_next.txt"
 
 # Pathspecs for artifacts agents create; never commit from this script.
 ARTIFACT_PATHSPECS = (
@@ -86,7 +86,7 @@ def stage_repair_artifacts() -> list[str]:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Run sequential local Cursor agents for CA data repair."
+        description="Run sequential local Cursor agents for data repair."
     )
     p.add_argument(
         "--max-runs",

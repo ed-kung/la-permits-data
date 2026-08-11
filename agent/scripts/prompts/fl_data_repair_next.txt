@@ -1,4 +1,4 @@
-Load `MY_DATA_PATH/processed_data/permits_ca_sample.parquet`. Go down the list of (JURISDICTION, STATE) pairs. Find the first one for which a data repair script does not exist (look in agent/scripts for {state}/data_repair_{state}_{city}.py).
+Load `MY_DATA_PATH/processed_data/permits_fl_sample.parquet`. Go down the list of (JURISDICTION, STATE) pairs. Find the first one for which a data repair script does not exist (look in agent/scripts for {state}/data_repair_{state}_{city}.py).
 
 For that jurisdiction, your goal is to assess the correctness of the following fields: STATUS_NORMALIZED, FILE_DATE, PERMIT_DATE, and FINAL_DATE, using information found in the DATA column, which is a raw JSON provided from the issuing agency.
 
