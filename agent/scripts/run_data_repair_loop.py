@@ -29,9 +29,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "fl_data_repair_next.txt"
 
 # Pathspecs for artifacts agents create; never commit from this script.
+# Scripts live under agent/scripts/{state}/ (not the scripts/ root).
+# Do not include globs that match zero files: `git add` fatals on those.
 ARTIFACT_PATHSPECS = (
     ":(glob)agent/scripts/**/data_repair_*.py",
-    ":(glob)agent/scripts/data_repair_*.py",
     ":(glob)agent/reports/*.md",
 )
 
@@ -66,8 +67,9 @@ def stage_repair_artifacts() -> list[str]:
         print("git: no new repair scripts/reports to stage")
         return []
 
+    # Add concrete paths (not globs): `git add` fails if any pathspec matches nothing.
     proc = subprocess.run(
-        ["git", "add", "--", *ARTIFACT_PATHSPECS],
+        ["git", "add", "--", *candidates],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
