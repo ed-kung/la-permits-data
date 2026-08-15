@@ -26,7 +26,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "fl_data_repair_next.txt"
+DEFAULT_PROMPT = Path(__file__).resolve().parent / "prompts" / "tx_data_repair_next.txt"
 
 # Pathspecs for artifacts agents create; never commit from this script.
 # Scripts live under agent/scripts/{state}/ (not the scripts/ root).
